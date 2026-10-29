@@ -63,17 +63,15 @@ SPEC 12번 **4단계(병원·보호자 설정)까지 구현을 마쳤습니다. 
 - **플레이 시간**은 화면이 보이는 동안만 세어 30초마다 쌓습니다(`ADD_PLAYTIME`). 보여주기만 하고 제한은 없습니다.
 - **`npm test`** 로 reducer 를 화면 없이 점검합니다 (새 라이브러리 없이 esbuild + node).
 
-## 남은 것 — 배포 (사람이 한 번 해야 하는 일)
+## 배포 — 끝났습니다 (2026-10-29)
 
-1. 이 작업 내용을 커밋하고 `main` 에 밀어 올립니다 (아직 안 했습니다 — 커밋은 `aca7889` 하나뿐입니다)
-2. GitHub 저장소 → **Settings → Pages → Source 를 "GitHub Actions"** 로 바꿉니다 (한 번만)
-3. 그러면 [.github/workflows/deploy.yml](.github/workflows/deploy.yml) 이 밀어 올릴 때마다
-   `npm ci` → `npm run typecheck` → `npm run build` → Pages 배포를 합니다.
-   주소는 `https://gkdnjsdls1-stack.github.io/woof-teacher/` 가 됩니다
-4. `vite.config.ts` 의 `base: './'` 라 하위 경로에서도 그대로 열립니다 — 고칠 것 없습니다
+**주소: https://gkdnjsdls1-stack.github.io/woof-teacher/**
 
-> **옷 목록은 2026-10-21 에 확정했습니다** — 강아지마다 머리 2 · 몸 2 · 얼굴 1, 가격 20/20/30/40.
-> 아이가 이름이나 색을 바꾸는 건 괜찮지만 **슬롯 구성과 가격은 그대로 두세요** ([docs/DECISIONS.md](docs/DECISIONS.md) 64~67번).
+- 저장소를 **공개**로 바꾸고(무료 계정은 비공개 저장소에 Pages 를 못 씁니다), Pages Source 를 **GitHub Actions** 로 설정했습니다.
+- 이제 `main` 에 밀어 올릴 때마다 [.github/workflows/deploy.yml](.github/workflows/deploy.yml) 이
+  `npm ci` → `npm run typecheck` → `npm run build` → Pages 배포를 합니다. PR 은 검사만 합니다.
+- 커밋 작성자 이메일은 공개 저장소를 대비해 GitHub noreply 주소로 바꿨습니다 (`git config user.email` 설정 완료).
+- 배포본에서 `?debugDate` 가 무시되는 것과 서비스 워커 등록을 확인했습니다.
 
 ## 직접 확인해야 할 것 (아직 못 한 것)
 
