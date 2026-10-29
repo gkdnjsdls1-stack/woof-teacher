@@ -6,13 +6,32 @@ import { CheckBoard } from '../components/CheckBoard';
 import { HeartGauge } from '../components/HeartGauge';
 import { SpeechBubble } from '../components/SpeechBubble';
 import { TopBar } from '../components/TopBar';
-import { ACTION_LABEL, BARKS, DOG_ORDER, MILESTONE_TAIL_WAG, TIMING } from '../constants';
+import {
+  ACTION_LABEL,
+  BARKS,
+  DOG_ORDER,
+  HOUSE_ENABLED,
+  MILESTONE_CROWN,
+  MILESTONE_TAIL_WAG,
+  PICNIC_ACTION_LABEL,
+  TIMING,
+} from '../constants';
 import { pickRandom } from '../lib/random';
 import { useGame } from '../state/GameContext';
-import { nextAction } from '../state/selectors';
+import { canDo, nextAction, sickDogs } from '../state/selectors';
 import type { DogId, DogMood } from '../types';
 
-export type HomeTarget = 'dress' | 'wash' | 'sleep';
+export type HomeTarget =
+  | 'dress'
+  | 'commute'
+  | 'lesson'
+  | 'walk'
+  | 'wash'
+  | 'sleep'
+  | 'groom'
+  | 'house'
+  | 'hospital'
+  | 'settings';
 
 /** S2 — 홈(강아지집). 다음에 할 일 버튼 하나만 크게 반짝입니다. */
 export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) => void }) {
@@ -20,7 +39,13 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
   const save = state.save;
   const done = save.today.done;
   const next = nextAction(save);
+  // 주말에는 수업 대신 소풍이라 버튼 문구만 바뀝니다 (없는 기능을 예고하지 않기 위해).
+  const nextLabel =
+    next === 'lesson' && save.today.lesson.type === 'picnic'
+      ? PICNIC_ACTION_LABEL
+      : next && ACTION_LABEL[next];
 
+  const sick = sickDogs(save);
   const [bubble, setBubble] = useState<{ dogId: DogId; text: string } | null>(null);
   const [busy, setBusy] = useState<null | 'feed' | 'water'>(null);
   const timers = useRef<number[]>([]);
@@ -43,7 +68,13 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
   function pet(dogId: DogId) {
     if (busy) return;
     sound('bark');
-    const lines = !done.feed ? BARKS.hungry : done.wash ? BARKS.sleepy : BARKS.happy;
+    const lines = sick.includes(dogId)
+      ? BARKS.sick
+      : !done.feed
+        ? BARKS.hungry
+        : done.wash
+          ? BARKS.sleepy
+          : BARKS.happy;
     showBubble(dogId, pickRandom(lines));
   }
 
@@ -52,7 +83,7 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
     if (busy) return;
     if (done[action]) {
       sound('bark');
-      showBubble('dachshund', pickRandom(BARKS.refuse));
+      showBubble(pickRandom(DOG_ORDER), pickRandom(BARKS.refuse));
       return;
     }
     setBusy(action);
@@ -70,11 +101,11 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
     else onNavigate(next as HomeTarget);
   }
 
-  const mood: DogMood = !done.feed ? 'hungry' : done.wash ? 'sleepy' : 'happy';
+  const baseMood: DogMood = !done.feed ? 'hungry' : done.wash ? 'sleepy' : 'happy';
 
   return (
     <div className="screen home">
-      <TopBar />
+      <TopBar onSettings={() => onNavigate('settings')} />
       <CheckBoard done={done} />
 
       <div className="home__scene">
@@ -84,9 +115,16 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
             <div className="dog-slot" key={id}>
               <HeartGauge name={dog.name} hearts={dog.hearts} />
               <div className="dog-slot__stage">
-                <span className="dog-slot__house">
-                  <DogHouse level={dog.houseLevel} size={78} />
-                </span>
+                {HOUSE_ENABLED && (
+                  <button
+                    type="button"
+                    className="dog-slot__house"
+                    onClick={() => onNavigate('house')}
+                    aria-label={`${dog.name}의 집 꾸미기`}
+                  >
+                    <DogHouse level={dog.houseLevel} size={62} />
+                  </button>
+                )}
                 <button
                   type="button"
                   className="dog-slot__dog"
@@ -95,13 +133,20 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
                 >
                   <Dog
                     breed={id}
-                    mood={mood}
+                    mood={sick.includes(id) ? 'sick' : baseMood}
                     outfit={dog.outfit}
                     tailWag={dog.hearts >= MILESTONE_TAIL_WAG}
-                    sparkle={done.wash}
+                    crown={dog.hearts >= MILESTONE_CROWN}
+                    sparkle={done.wash || done.groom}
                     size={152}
                   />
                 </button>
+                {/* 아픈 날 표시: 표정만으로는 아이가 알아채기 어려워 콧물을 함께 띄웁니다 (SPEC 6-8). */}
+                {sick.includes(id) && (
+                  <span className="dog-slot__sick" aria-label={`${dog.name}가 아파요`}>
+                    💧
+                  </span>
+                )}
                 {bubble?.dogId === id && <SpeechBubble text={bubble.text} />}
               </div>
             </div>
@@ -116,7 +161,7 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
           onClick={() => feedOrWater('feed')}
           aria-label={done.feed ? '밥은 다 먹었어요' : '밥 주기'}
         >
-          <FoodBowl filled={false} size={72} />
+          <FoodBowl filled={!done.feed} size={72} />
           <span className="bowl__label">{done.feed ? '다 먹었어요 ✅' : '밥 주기'}</span>
         </button>
         <button
@@ -125,15 +170,49 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
           onClick={() => feedOrWater('water')}
           aria-label={done.water ? '물은 다 마셨어요' : '물 주기'}
         >
-          <WaterBowl filled={false} size={72} />
+          <WaterBowl filled={!done.water} size={72} />
           <span className="bowl__label">{done.water ? '다 마셨어요 ✅' : '물 주기'}</span>
         </button>
       </div>
 
       <footer className="home__next">
+        <div className="home__extras">
+          {done.dress && (
+            <button
+              type="button"
+              className="home__wardrobe"
+              onClick={() => onNavigate('dress')}
+              disabled={busy !== null}
+            >
+              👕 옷 갈아입히기
+            </button>
+          )}
+          {/* 병원은 아픈 날에만 보입니다. 안 데려가도 다음 날 저절로 낫습니다 (벌칙 없음). */}
+          {canDo(save, 'hospital') && (
+            <button
+              type="button"
+              className="home__wardrobe home__wardrobe--care"
+              onClick={() => onNavigate('hospital')}
+              disabled={busy !== null}
+            >
+              🏥 병원 가기
+            </button>
+          )}
+          {/* 미용실은 체크판 밖의 보너스입니다 — 하루 1번, 학교에 다녀온 뒤에만 보입니다. */}
+          {canDo(save, 'groom') && !done.groom && (
+            <button
+              type="button"
+              className="home__wardrobe"
+              onClick={() => onNavigate('groom')}
+              disabled={busy !== null}
+            >
+              ✂️ 미용실 가기
+            </button>
+          )}
+        </div>
         <span className="home__next-label">다음에 할 일</span>
         <BigButton onClick={doNext} glow disabled={!next || busy !== null}>
-          {next ? ACTION_LABEL[next] : '오늘은 다 했어요 🌙'}
+          {nextLabel ?? '오늘은 다 했어요 🌙'}
         </BigButton>
       </footer>
 

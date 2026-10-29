@@ -6,7 +6,7 @@
 
 import { DOG_PROFILE } from '../constants';
 import type { DogId, DogMood } from '../types';
-import { DOG_VIEWBOX } from './geometry';
+import { DOG_GEOMETRY, DOG_VIEWBOX } from './geometry';
 import { OutfitLayer } from './Outfits';
 import { PALETTE } from './palette';
 
@@ -200,6 +200,59 @@ function PoodleBase({ mood, tailWag }: { mood: DogMood; tailWag: boolean }) {
   );
 }
 
+/** 호감도 100 왕관 — 머리 위에 살짝 띄워 그립니다 (모자와 겹치지 않게) */
+function MilestoneCrown({ breed }: { breed: DogId }) {
+  const { x, y } = DOG_GEOMETRY[breed].head;
+  const top = y - 12;
+  return (
+    <g className="crown-float">
+      <path
+        d={`M${x - 11},${top + 4} l0,-8 l5.5,4.5 l5.5,-8.5 l5.5,8.5 l5.5,-4.5 l0,8 z`}
+        fill="#F7D35B"
+        stroke="#DFB531"
+        strokeWidth={1.2}
+        strokeLinejoin="round"
+      />
+      <circle cx={x} cy={top - 6} r={1.8} fill="#FF8FB3" />
+    </g>
+  );
+}
+
+/** 목줄 — 목 기준점에 걸고 끈을 아래로 늘어뜨립니다 (2단계) */
+function LeashLayer({ breed }: { breed: DogId }) {
+  const { x, y } = DOG_GEOMETRY[breed].neck;
+  return (
+    <g aria-hidden="true">
+      <ellipse cx={x} cy={y} rx={10} ry={4.4} fill="none" stroke={PALETTE.leash} strokeWidth={4} />
+      <circle cx={x} cy={y + 4} r={2} fill={PALETTE.star} />
+      <path d={`M${x - 8},${y + 2} q-14,10 -22,4`} fill="none" stroke={PALETTE.leash} strokeWidth={3} strokeLinecap="round" />
+    </g>
+  );
+}
+
+/** 입마개 — 주둥이 타원에 맞춰 살짝만 덮습니다. 눈과 코는 가리지 않습니다 (무섭지 않게) */
+function MuzzleLayer({ breed }: { breed: DogId }) {
+  const { x, y, rx, ry } = DOG_GEOMETRY[breed].snout;
+  return (
+    <g aria-hidden="true" opacity={0.65}>
+      <ellipse cx={x} cy={y + 1} rx={rx} ry={ry} fill={PALETTE.muzzle} />
+      <path
+        d={`M${x - rx},${y + 1} h${rx * 2} M${x - rx * 0.4},${y + 1 - ry} v${ry * 2} M${x + rx * 0.4},${y + 1 - ry} v${ry * 2}`}
+        stroke="#9C8B74"
+        strokeWidth={1.2}
+        fill="none"
+      />
+      <path
+        d={`M${x - rx},${y + 1} q${-rx * 0.7},${ry} ${-rx * 0.2},${ry * 1.8}`}
+        fill="none"
+        stroke="#9C8B74"
+        strokeWidth={2.4}
+        strokeLinecap="round"
+      />
+    </g>
+  );
+}
+
 /* ───────────────────────── 공개 컴포넌트 ───────────────────────── */
 
 export interface DogProps {
@@ -210,6 +263,12 @@ export interface DogProps {
   tailWag?: boolean;
   /** 씻긴 뒤 반짝반짝 */
   sparkle?: boolean;
+  /** 호감도 100에서 머리 위에 뜨는 왕관 */
+  crown?: boolean;
+  /** 출근·산책 때 목에 걸리는 목줄 (2단계) */
+  leash?: boolean;
+  /** 출근·교실에서 쓰는 입마개 (2단계). 집에 오면 벗습니다 */
+  muzzle?: boolean;
   size?: number;
   className?: string;
 }
@@ -228,6 +287,9 @@ export function Dog({
   outfit,
   tailWag = false,
   sparkle = false,
+  crown = false,
+  leash = false,
+  muzzle = false,
   size = 170,
   className,
 }: DogProps) {
@@ -251,6 +313,11 @@ export function Dog({
       {outfit?.body && <OutfitLayer id={outfit.body} breed={breed} />}
       {outfit?.face && <OutfitLayer id={outfit.face} breed={breed} />}
       {outfit?.head && <OutfitLayer id={outfit.head} breed={breed} />}
+
+      {leash && <LeashLayer breed={breed} />}
+      {muzzle && <MuzzleLayer breed={breed} />}
+
+      {crown && <MilestoneCrown breed={breed} />}
 
       {sparkle && (
         <g className="sparkle-group">

@@ -31,6 +31,7 @@ npm run dev
 - 같은 와이파이에 있는 폰에서 열려면 터미널에 함께 표시되는 `Network:` 주소를 쓰세요.
 - 빌드: `npm run build` → `npm run preview`
 - 타입 검사만: `npm run typecheck`
+- reducer 자가 점검: `npm test` (화면 없이 하루 1회 제한·코인·날짜·아픔 규칙을 확인합니다)
 
 > Node.js 18 이상이 필요합니다.
 

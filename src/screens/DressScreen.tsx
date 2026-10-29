@@ -3,14 +3,21 @@ import { useState } from 'react';
 import { Dog, OUTFIT_EMOJI } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { TopBar } from '../components/TopBar';
-import { DOG_ORDER, DOG_PROFILE, MILESTONE_KISS, OUTFITS, SLOT_LABEL } from '../constants';
+import {
+  DOG_ORDER,
+  DOG_PROFILE,
+  MILESTONE_KISS,
+  OUTFITS,
+  SHOP_ENABLED,
+  SLOT_LABEL,
+} from '../constants';
 import { useGame } from '../state/GameContext';
 import type { DogId, OutfitSlot } from '../types';
 
 const SLOTS: OutfitSlot[] = ['head', 'body', 'face'];
 
 /** S3 — 옷 입히기. 갈아입기는 자유, 호감도 보상은 하루 첫 1회뿐입니다. */
-export function DressScreen({ onBack }: { onBack: () => void }) {
+export function DressScreen({ onBack, onShop }: { onBack: () => void; onShop: () => void }) {
   const { state, dispatch, sound } = useGame();
   const save = state.save;
   const [tab, setTab] = useState<DogId>('dachshund');
@@ -58,7 +65,13 @@ export function DressScreen({ onBack }: { onBack: () => void }) {
 
       <div className="dress__slots">
         {SLOTS.map((slot) => {
-          const items = OUTFITS.filter((o) => o.dog === tab && o.slot === slot);
+          // 옷가게가 열리기 전에는 살 수 없는 옷을 아예 보여주지 않습니다.
+          // 자물쇠 7칸을 늘어놓는 건 아이에게 "나중에"를 일곱 번 약속하는 것과 같습니다.
+          // 선물 옷(❤️80)은 지금도 받을 수 있으니 남겨둡니다.
+          const items = OUTFITS.filter(
+            (o) =>
+              o.dog === tab && o.slot === slot && (SHOP_ENABLED || o.source !== 'shop'),
+          );
           if (items.length === 0) return null;
           return (
             <section key={slot} className="slot">
@@ -91,7 +104,7 @@ export function DressScreen({ onBack }: { onBack: () => void }) {
                           ? item.label
                           : item.source === 'gift'
                             ? `${item.label} — 하트 ${MILESTONE_KISS}이 되면 선물로 받아요`
-                            : `${item.label} — 아직 없어요. 옷가게는 나중에 열려요`
+                            : `${item.label} — 옷가게에서 뼈다귀 ${item.price}개`
                       }
                     >
                       <span className="item__emoji" aria-hidden="true">
@@ -112,9 +125,13 @@ export function DressScreen({ onBack }: { onBack: () => void }) {
         })}
       </div>
 
-      <p className="dress__hint">옷가게는 다음 단계에서 열려요 🏪</p>
-
       <footer className="dress__footer">
+        {/* 옷가게는 3단계에서 열립니다. 열리기 전에는 버튼도 두지 않습니다 (SPEC 1번). */}
+        {SHOP_ENABLED && (
+          <button type="button" className="home__wardrobe" onClick={onShop}>
+            🛍 옷가게 가기
+          </button>
+        )}
         {!bothDressed && <p className="dress__warning">두 강아지 모두 한 개씩 입혀줄까요?</p>}
         <BigButton onClick={finish} glow={bothDressed} disabled={!bothDressed}>
           ✅ 다 입혔어요

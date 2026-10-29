@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 
 import { Dog, Shower, SoapBubble, Towel } from '../assets';
 import { BigButton } from '../components/BigButton';
+import { Progress } from '../components/Progress';
 import { TopBar } from '../components/TopBar';
 import {
   BARKS,
@@ -45,15 +46,6 @@ function useRubCounter(onTick: () => void) {
       last.current = null;
     },
   };
-}
-
-function Progress({ value, target }: { value: number; target: number }) {
-  const percent = Math.min(100, (value / target) * 100);
-  return (
-    <div className="progress" role="progressbar" aria-valuemin={0} aria-valuemax={target} aria-valuenow={value}>
-      <div className="progress__fill" style={{ width: `${percent}%` }} />
-    </div>
-  );
 }
 
 /** S11 — 목욕: 거품 문지르기 → 물로 헹구기 → 수건으로 닦기 */
@@ -147,7 +139,7 @@ export function WashScreen({ onBack }: { onBack: () => void }) {
         <>
           <Progress value={count} target={target} />
           <p className="wash__hint">
-            {step === 'rinse' ? '샤워기를 눌러주세요' : '강아지를 쓱쓱 문질러주세요'}
+            {step === 'rinse' ? '샤워기를 눌러주세요' : '쓱쓱 문지르거나 콕콕 눌러요'}
           </p>
         </>
       ) : (

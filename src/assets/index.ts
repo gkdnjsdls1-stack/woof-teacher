@@ -8,13 +8,18 @@ export { Dog, type DogProps } from './Dog';
 export { DOG_GEOMETRY, DOG_VIEWBOX, type DogGeometry } from './geometry';
 export { OUTFIT_EMOJI, OutfitLayer } from './Outfits';
 export {
+  ClockFace,
   DogHouse,
   FoodBowl,
   GiftBox,
+  Leash,
   MoonAndStars,
+  Muzzle,
+  OpenCar,
   PawPrint,
   Shower,
   SoapBubble,
+  Student,
   Towel,
   WaterBowl,
 } from './Props';

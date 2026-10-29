@@ -216,7 +216,7 @@ h3 {
   border: 2px solid var(--line);
   border-radius: 999px;
   padding: 2px 10px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -325,30 +325,34 @@ h3 {
 .topbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 44px;
+  gap: 6px;
+  min-height: var(--tap);
 }
 
 .topbar__back {
-  width: 44px;
-  height: 44px;
+  flex: 0 0 auto;
+  width: var(--tap);
+  height: var(--tap);
   border-radius: 50%;
   border: 2px solid var(--line);
   background: #fff;
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .topbar__coins {
+  flex: 0 0 auto;
   background: #fff;
   border: 2px solid var(--line);
   border-radius: 999px;
-  padding: 6px 14px;
+  padding: 6px 12px;
   font-weight: 800;
-  font-size: 18px;
+  font-size: 20px;
+  white-space: nowrap;
 }
 
 .topbar__title {
   flex: 1;
+  min-width: 0;
   text-align: center;
   font-weight: 800;
   font-size: 19px;
@@ -356,12 +360,12 @@ h3 {
 
 .topbar__mute {
   margin-left: auto;
-  width: 44px;
-  height: 44px;
+  width: var(--tap);
+  height: var(--tap);
   border-radius: 50%;
   border: 2px solid var(--line);
   background: #fff;
-  font-size: 20px;
+  font-size: 24px;
 }
 
 /* ───────────────────────── 체크판 ───────────────────────── */
@@ -369,40 +373,38 @@ h3 {
 .checkboard {
   list-style: none;
   margin: 0;
-  padding: 8px;
+  padding: 2px 4px;
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 4px;
-  background: #fff;
-  border: 2px solid var(--line);
-  border-radius: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px 4px;
 }
 
+/* 체크판은 누르는 곳이 아니라 "오늘 어디까지 했나" 표시입니다.
+   흰 카드 + 그림자를 주면 버튼처럼 보여서 아이가 누르려 하므로 납작하게 둡니다. */
 .checkboard__cell {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1px;
-  padding: 4px 0;
-  border-radius: 10px;
-  background: #fdf5ec;
+  padding: 2px 0;
+  background: none;
 }
 
-.checkboard__cell--done {
-  background: #e4f7ee;
+.checkboard__cell--done .checkboard__label {
+  color: #3f9c75;
 }
 
 .checkboard__cell--locked {
-  opacity: 0.45;
+  opacity: 0.4;
 }
 
 .checkboard__emoji {
-  font-size: 17px;
+  font-size: 22px;
   line-height: 1;
 }
 
 .checkboard__label {
-  font-size: 11px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--ink-soft);
   white-space: nowrap;
@@ -419,40 +421,49 @@ h3 {
 }
 
 .heart-gauge__name {
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 800;
+}
+
+.heart-gauge__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
 }
 
 .heart-gauge__bar {
   position: relative;
-  width: 100%;
-  max-width: 140px;
-  height: 22px;
+  flex: 1;
+  min-width: 0;
+  max-width: 96px;
+  height: 18px;
   border-radius: 999px;
-  background: #ffe1e8;
-  border: 2px solid #ffc9d6;
+  background: #fff0f3;
+  border: 2px solid #f0b6c6;
   overflow: hidden;
 }
 
 .heart-gauge__fill {
   height: 100%;
-  background: linear-gradient(90deg, #ff9db8, var(--heart));
+  background: linear-gradient(90deg, #ff7a9d, #e8456d);
   transition: width 0.4s ease;
 }
 
 .heart-gauge__value {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: 13px;
+  flex: 0 0 auto;
+  font-size: 18px;
   font-weight: 800;
-  color: #6b3b48;
+  color: #b03657;
 }
 
 /* ───────────────────────── 홈 ───────────────────────── */
 
 .home__scene {
+  flex: 1;
+  min-height: 213px;
+  align-items: center;
   display: flex;
   gap: 6px;
   padding: 10px 4px 0;
@@ -477,11 +488,14 @@ h3 {
   padding-bottom: 4px;
 }
 
+/* 집은 3단계(업그레이드)부터 그립니다 — HOUSE_ENABLED 참고.
+   강아지와 겹치지 않도록 뒤쪽 구석에 작게 깔아둡니다. */
 .dog-slot__house {
   position: absolute;
-  top: 0;
-  right: 2px;
-  opacity: 0.9;
+  bottom: 0;
+  right: -2px;
+  z-index: 0;
+  opacity: 0.55;
 }
 
 .dog-slot__dog {
@@ -498,6 +512,7 @@ h3 {
 
 .home__bowls {
   display: flex;
+  justify-content: center;
   gap: 10px;
 }
 
@@ -514,14 +529,22 @@ h3 {
   background: #fff;
 }
 
+/* 끝난 그릇은 자리를 적게 차지하도록 물러납니다 — "할 일이 없어지게 한다"(SPEC 1번). */
 .bowl--done {
+  flex: 0 1 auto;
   background: #f1f7f3;
   border-color: #cfe7da;
-  opacity: 0.85;
+  padding: 4px 12px;
+  opacity: 0.7;
+}
+
+.bowl--done svg {
+  width: 36px;
+  height: auto;
 }
 
 .bowl__label {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
 }
 
@@ -534,9 +557,71 @@ h3 {
 }
 
 .home__next-label {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--ink-soft);
+}
+
+/* 옷 입히기를 끝낸 뒤에도 언제든 다시 갈아입힐 수 있는 버튼 */
+.home__wardrobe {
+  min-height: var(--tap);
+  padding: 8px 18px;
+  margin-bottom: 2px;
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.home__wardrobe:disabled {
+  opacity: 0.5;
+}
+
+/* ───────────────────────── 단계 축하 ───────────────────────── */
+
+.celebrate__dog {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.celebrate__kiss {
+  position: absolute;
+  top: 6px;
+  right: 18px;
+  font-size: 30px;
+  animation: nudge 0.8s ease-in-out infinite;
+}
+
+.celebrate__note {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.celebrate__gift {
+  margin: 0;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #fff6da;
+  border: 2px solid var(--yellow);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.celebrate__bark {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--pink-dark);
+}
+
+.crown-float {
+  animation: twinkle 1.6s ease-in-out infinite;
+  transform-origin: center;
 }
 
 /* ───────────────────────── 말풍선 ───────────────────────── */
@@ -551,7 +636,7 @@ h3 {
   border: 3px solid var(--line);
   border-radius: 16px;
   padding: 4px 12px;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
   white-space: nowrap;
   animation: popIn 0.25s ease-out;
@@ -623,7 +708,7 @@ h3 {
 
 .tab {
   flex: 1;
-  min-height: 48px;
+  min-height: var(--tap);
   border-radius: 999px;
   border: 3px solid var(--line);
   background: #fff;
@@ -648,7 +733,7 @@ h3 {
 
 .dress__style {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--ink-soft);
 }
@@ -656,26 +741,28 @@ h3 {
 .dress__slots {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 10px;
+  margin-block: auto;
   overflow-y: auto;
 }
 
 .slot__title {
-  font-size: 17px;
+  font-size: 18px;
   margin-bottom: 4px;
   color: var(--ink-soft);
 }
 
 .slot__items {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  overflow-x: auto;
   padding-bottom: 4px;
 }
 
 .item {
   flex: 0 0 auto;
-  width: 84px;
+  width: 104px;
   min-height: var(--tap);
   border-radius: 16px;
   border: 3px solid var(--line);
@@ -702,22 +789,21 @@ h3 {
 }
 
 .item__label {
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
   text-align: center;
   line-height: 1.15;
 }
 
 .item__price {
-  font-size: 12px;
+  font-size: 18px;
   color: var(--ink-soft);
 }
 
-.dress__hint,
 .wash__hint {
   margin: 0;
   text-align: center;
-  font-size: 15px;
+  font-size: 18px;
   color: var(--ink-soft);
 }
 
@@ -733,7 +819,7 @@ h3 {
 
 .dress__warning {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--pink-dark);
 }
@@ -825,7 +911,7 @@ h3 {
   flex-direction: column;
   align-items: center;
   font-weight: 800;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .wash__shower:active {
@@ -858,6 +944,20 @@ h3 {
 .night {
   text-align: center;
   align-items: center;
+}
+
+/* 이 두 화면은 가운데 정렬이라 상단바·버튼이 내용 폭으로 쪼그라듭니다.
+   다른 화면과 같은 전체 폭으로 펴 줍니다. */
+.sleep > .topbar,
+.sleep__footer {
+  align-self: stretch;
+  width: 100%;
+}
+
+/* 재우기는 밤으로 넘어가는 길목이라 낮 배경 그대로 두지 않고 노을빛으로 깔아둡니다.
+   불을 끄면 .sleep--dark 가 완전한 밤으로 바꿉니다. */
+.sleep {
+  background: linear-gradient(180deg, #ffeedc 0%, #e4d8ef 100%);
 }
 
 .sleep--dark,
@@ -906,13 +1006,13 @@ h3 {
 
 .night__mute {
   align-self: flex-end;
-  width: 44px;
-  height: 44px;
+  width: var(--tap);
+  height: var(--tap);
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.22);
   color: #fff;
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .night__previews {
@@ -926,12 +1026,15 @@ h3 {
   max-width: 360px;
 }
 
+/* 예고는 읽는 글이지 누르는 버튼이 아닙니다. 카드 테두리를 빼고 왼쪽 선만 남깁니다. */
 .night__card {
-  background: rgba(255, 255, 255, 0.14);
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  border-radius: 16px;
-  padding: 12px 14px;
-  font-size: 18px;
+  background: none;
+  border: none;
+  border-left: 4px solid rgba(255, 255, 255, 0.35);
+  border-radius: 0;
+  padding: 4px 0 4px 14px;
+  text-align: left;
+  font-size: 19px;
   font-weight: 700;
   animation: popIn 0.4s ease-out;
 }
@@ -1032,4 +1135,914 @@ h3 {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ───────────────────── 출근 준비 · 오픈카 (2단계) ───────────────────── */
+
+.commute__title,
+.lesson__prompt {
+  margin: 0;
+  text-align: center;
+  font-size: 22px;
+}
+
+.commute__dogs,
+.lesson__dogs {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.gear-dog {
+  flex: 1 1 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 2px;
+  border-radius: var(--radius);
+  border: 3px dashed var(--line);
+  background: #fffdf8;
+}
+
+.gear-dog--ready {
+  border-style: solid;
+  border-color: var(--mint);
+  background: #f2fbf7;
+}
+
+.gear-dog__name {
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.gear-dog__todo {
+  font-size: 18px;
+  color: var(--ink-soft);
+}
+
+.commute__tray {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.tray-item {
+  min-width: 96px;
+  min-height: var(--tap);
+  border-radius: 18px;
+  border: 3px solid var(--line);
+  background: #fff;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  touch-action: none;
+}
+
+.tray-item:active {
+  transform: scale(0.95);
+}
+
+.tray-item__label {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.commute__hint {
+  margin: 0;
+  text-align: center;
+  font-size: 18px;
+  color: var(--ink-soft);
+}
+
+.commute__footer,
+.lesson__footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.commute__ghost {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 40;
+  filter: drop-shadow(0 4px 6px #0003);
+}
+
+.commute__bark,
+.lesson__bark {
+  margin: 0;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--pink-dark);
+}
+
+.commute--drive {
+  background: linear-gradient(180deg, #d9efff 0%, #eafbe6 100%);
+}
+
+.road {
+  margin-top: 8px;
+  height: 46px;
+  border-radius: 12px;
+  background: #8e8e96;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.road__line {
+  width: 200%;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, #fff 0 30px, transparent 30px 60px);
+  animation: road-run 0.6s linear infinite;
+}
+
+@keyframes road-run {
+  to {
+    transform: translateX(-60px);
+  }
+}
+
+.car {
+  position: relative;
+  border: 0;
+  background: none;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  animation: car-bob 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes car-bob {
+  to {
+    transform: translateY(-4px);
+  }
+}
+
+.car__wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wheel-spin 0.5s linear infinite;
+}
+
+@keyframes wheel-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.car__dogs {
+  position: absolute;
+  top: 26px;
+  /* 빨간 차체는 그림 좌표로 x=12~148 (320px 기준 19~237px) 까지입니다.
+     그 뒤는 범퍼와 바퀴뿐이라, 두 마리를 그 안쪽에 앉혀야 떠 보이지 않습니다. */
+  left: calc(50% - 48px);
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+}
+
+.car__dog {
+  animation: ear-flap 0.35s ease-in-out infinite alternate;
+}
+
+.car__dog:last-child {
+  animation-delay: 0.12s;
+}
+
+@keyframes ear-flap {
+  to {
+    transform: rotate(-4deg);
+  }
+}
+
+.car__honk {
+  position: absolute;
+  top: 0;
+  left: 6%;
+  background: #fff;
+  border: 3px solid var(--yellow);
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-weight: 800;
+}
+
+/* ───────────────────── 교실 · 수업 (2단계) ───────────────────── */
+
+.classroom {
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #fffaf0 0%, #f6efe2 100%);
+  border: 3px solid var(--line);
+  padding: 8px 6px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.classroom__board {
+  width: 70%;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  background: #8fb89a;
+  border: 3px solid #7a9f84;
+  border-radius: 8px;
+}
+
+.classroom__students {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+
+.classroom__students--clap {
+  animation: clap-bounce 0.25s ease-in-out infinite alternate;
+}
+
+@keyframes clap-bounce {
+  to {
+    transform: translateY(-5px);
+  }
+}
+
+.classroom__dogs {
+  display: flex;
+  gap: 8px;
+}
+
+.q-count {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px 6px;
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.q-word {
+  text-align: center;
+  font-size: 76px;
+  line-height: 1;
+}
+
+.q-math {
+  text-align: center;
+  font-size: 42px;
+  font-weight: 800;
+}
+
+.choices {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.choices--wide {
+  gap: 4px;
+}
+
+.choice {
+  flex: 1 1 0;
+  min-height: 76px;
+  border-radius: 18px;
+  border: 3px solid var(--line);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  padding: 6px 2px;
+}
+
+.choice:active:not(:disabled) {
+  border-color: var(--pink);
+  background: #fff0f5;
+}
+
+.choice__text {
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.lesson__mark {
+  margin: 0;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.lesson__mark--right {
+  color: #2f9e6e;
+}
+
+.lesson__mark--wrong {
+  color: var(--pink-dark);
+}
+
+.lesson__earned {
+  margin: 0;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+/* 짝 맞추기 카드 */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.card {
+  min-height: 84px;
+  border-radius: 16px;
+  border: 3px solid var(--line);
+  background: linear-gradient(180deg, #ffe9f1 0%, #ffd9e6 100%);
+  font-size: 34px;
+}
+
+.card--open {
+  background: #fff;
+  border-color: var(--mint);
+}
+
+/* ───────────────────── 주말 소풍 (2단계) ───────────────────── */
+
+.park {
+  position: relative;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #e6f6ff 0%, #d9f2cd 60%, #cfebc0 100%);
+  border: 3px solid #bfe3b0;
+  padding: 10px 6px;
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+}
+
+.park__dogs {
+  display: flex;
+  gap: 6px;
+}
+
+.park__bark {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  margin: 0;
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  padding: 2px 10px;
+  font-weight: 800;
+}
+
+.park__taps {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.park__tap {
+  width: 84px;
+  min-height: var(--tap);
+  border-radius: 18px;
+  border: 3px solid var(--line);
+  background: #fff;
+  font-size: 34px;
+}
+
+.park__tap--done {
+  border-color: var(--mint);
+  background: #f2fbf7;
+}
+
+/* ───────────────── 빈 공간 메우기 ─────────────────
+   내용 블록을 위아래 가운데로 밀어, 화면 중앙이 통째로 비지 않게 합니다. */
+
+.commute__dogs,
+.sleep__dogs,
+.night__previews,
+.lesson--done .lesson__dogs {
+  margin-block: auto;
+}
+
+/* 목욕: 욕조·진행막대·안내는 한 묶음이라 양 끝에만 auto 를 둡니다. */
+.wash__tub {
+  margin-top: auto;
+}
+
+.wash__hint {
+  margin-bottom: auto;
+}
+
+/* 수업 화면은 "교실 그림 / 문제+보기" 두 덩어리입니다.
+   양쪽에 auto 를 하나씩 두면 남는 공간이 반씩 나뉘어 문제 묶음이 가운데에 옵니다.
+   (문제와 보기 사이를 벌리면 둘이 따로 노는 것처럼 보입니다.) */
+.lesson .classroom,
+.lesson .park,
+.lesson .choices,
+.lesson .cards,
+.lesson .park__taps {
+  margin-bottom: auto;
+}
+
+/* 달리는 화면은 도로 아래가 통째로 비어서, 차와 안내문을 한 덩어리로 가운데에 둡니다. */
+.commute--drive .car {
+  margin-top: auto;
+}
+
+.commute--drive .commute__hint {
+  margin-bottom: auto;
+}
+
+/* 수업 끝 — 하루 중 가장 큰 보상이라 눈에 띄게 */
+.lesson__earned {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: center;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: #fff6da;
+  border: 3px solid var(--yellow);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.lesson__earned-coin {
+  font-size: 30px;
+  animation: nudge 0.7s ease-in-out infinite;
+}
+
+/* 밤에는 축하 카드도 어둡게 — 재우는 흐름을 흰 화면으로 깨지 않게 */
+.app:has(.night) .overlay__card,
+.app:has(.sleep--dark) .overlay__card {
+  background: var(--night2);
+  color: #f4f1ff;
+}
+
+.app:has(.night) .celebrate__note,
+.app:has(.sleep--dark) .celebrate__note {
+  color: #cfcbe8;
+}
+
+.app:has(.night) .celebrate__gift,
+.app:has(.sleep--dark) .celebrate__gift {
+  background: rgba(255, 246, 218, 0.18);
+  color: #ffe9a8;
+}
+
+/* 키보드 포커스 표시 (접근성 기본) */
+:focus-visible {
+  outline: 3px solid var(--pink-dark);
+  outline-offset: 2px;
+}
+
+/* ═══════════════════ 3단계 — 옷가게 · 집 · 산책 · 미용실 ═══════════════════ */
+
+/* ───────────────── S4 옷가게 ───────────────── */
+
+.shop__today {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 8px 12px;
+  border: 3px solid var(--mint);
+  border-radius: var(--radius);
+  background: #f2fbf7;
+}
+
+/* 글씨는 18px 아래로 내려가지 않습니다 — 꼬리표는 한 줄 위로 올립니다. */
+.shop__today-tag {
+  grid-column: 1 / -1;
+  justify-self: start;
+  font-size: 18px;
+  font-weight: 800;
+  color: #2f7f6a;
+  background: #fff;
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.shop__today-emoji {
+  font-size: 30px;
+}
+
+.shop__today-label {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.shop__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-block: auto;
+}
+
+/* 한글이 낱말 가운데에서 잘리지 않게 ("선글 라스" 방지) */
+.item__label {
+  word-break: keep-all;
+}
+
+/* 살 수 있는 옷만 테두리를 띄웁니다 — 코인이 모자란 옷은 납작하게 둡니다. */
+.item--buy {
+  border-color: var(--mint);
+}
+
+.item:disabled:not(.item--on) {
+  opacity: 0.5;
+}
+
+.shop__hint {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.shop__dog {
+  display: grid;
+  place-items: center;
+}
+
+/* ───────────────── S12 집 업그레이드 ───────────────── */
+
+.house__list {
+  display: flex;
+  gap: 10px;
+  margin-block: auto;
+}
+
+.house-card {
+  flex: 1 1 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border: 3px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.house-card__name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.house-card__next,
+.house-card__max {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* ───────────────── S8 산책 ───────────────── */
+
+.walk .park {
+  min-height: 190px;
+  overflow: hidden;
+  margin-top: auto;
+}
+
+/* 공원이 옆으로 흘러가는 느낌 — 바닥 줄무늬만 움직입니다. */
+.park--walking::before {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 46px;
+  background: repeating-linear-gradient(90deg, #bfe3b0 0 18px, #cfebc0 18px 42px);
+  animation: park-flow 1.1s linear infinite;
+}
+
+.park--walking .park__dogs {
+  animation: walk-bob 0.5s ease-in-out infinite;
+}
+
+@keyframes park-flow {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: -42px;
+  }
+}
+
+@keyframes walk-bob {
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.walk__title {
+  margin: 0;
+  font-size: 22px;
+  text-align: center;
+}
+
+.walk__hint,
+.walk__done-text {
+  margin: 0;
+  font-size: 18px;
+  text-align: center;
+}
+
+/* 산책·미용실도 덩어리 **양 끝**에만 auto 를 둡니다.
+   진행막대 앞에 넣으면 막대만 바닥으로 떨어져 따로 놉니다. */
+.walk .progress,
+.groom .progress,
+.walk__footer,
+.groom__footer {
+  margin-bottom: auto;
+}
+
+/* ───────────────── S9 미용실 ───────────────── */
+
+.groom__title {
+  margin: 0;
+  font-size: 22px;
+  text-align: center;
+}
+
+.groom__mirror {
+  position: relative;
+  overflow: hidden;
+  margin-top: auto;
+  padding: 10px 6px;
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  border: 6px solid #e7c9a8;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #fbf6ef, #f1e7da);
+}
+
+.groom__dogs {
+  display: flex;
+  gap: 6px;
+}
+
+/* 커튼: 손질하는 동안 닫혀 있다가 "짠!" 하고 양쪽으로 열립니다. */
+.groom__curtain {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+}
+
+.groom__curtain-left,
+.groom__curtain-right {
+  flex: 1 1 50%;
+  background: linear-gradient(90deg, #e98aa6, #d96d8c);
+  transition: transform 1.2s ease;
+}
+
+.groom__curtain--open .groom__curtain-left {
+  transform: translateX(-100%);
+}
+
+.groom__curtain--open .groom__curtain-right {
+  transform: translateX(100%);
+}
+
+.groom__tool {
+  min-height: 84px;
+  border: 3px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  font-size: 40px;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+}
+
+.groom__tool-label {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.groom__done-text {
+  margin: 0 0 6px;
+  font-size: 18px;
+  text-align: center;
+}
+
+/* ───────────────── 홈의 보너스 버튼 줄 ───────────────── */
+
+.home__extras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* 집은 이제 눌러서 업그레이드하러 갈 수 있습니다 (버튼 기본 모양은 지웁니다). */
+.dog-slot__house {
+  border: 0;
+  padding: 0;
+  background: none;
+}
+
+/* ═══════════════════ 4단계 — 병원 · 보호자 설정 ═══════════════════ */
+
+/* ───────────────── S10 병원 ───────────────── */
+
+.hospital__title {
+  margin: 0;
+  font-size: 22px;
+  text-align: center;
+}
+
+.hospital__bed {
+  position: relative;
+  margin-top: auto;
+  padding: 12px 6px;
+  min-height: 170px;
+  display: grid;
+  place-items: center;
+  border: 3px solid #cfe6f5;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #f3fbff, #e8f4fb);
+}
+
+.hospital__dogs {
+  display: flex;
+  gap: 8px;
+}
+
+.hospital__tool {
+  min-height: 84px;
+  border: 3px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+}
+
+.hospital__tool-emoji {
+  font-size: 40px;
+}
+
+.hospital__tool-label {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.hospital__done-text {
+  margin: 0 0 6px;
+  font-size: 18px;
+  text-align: center;
+}
+
+/* 병원도 덩어리 양 끝에만 auto 를 둡니다 (진행막대가 따로 떨어지지 않게). */
+.hospital .progress,
+.hospital__footer {
+  margin-bottom: auto;
+}
+
+/* 아픈 강아지 옆 콧물 */
+.dog-slot__sick {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 26px;
+  animation: sick-drip 1.6s ease-in-out infinite;
+}
+
+@keyframes sick-drip {
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+/* 아픈 날의 병원 버튼은 한눈에 보이게 */
+.home__wardrobe--care {
+  border-color: #f0b6c4;
+  background: #fff4f7;
+}
+
+/* ───────────────── S14 보호자 설정 (숨김) ───────────────── */
+
+.topbar__gear {
+  margin-left: auto;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: #fff;
+  font-size: 24px;
+}
+
+/* 톱니바퀴가 있으면 음소거는 바로 옆에 붙습니다 (둘 다 오른쪽 끝). */
+.topbar__gear + .topbar__mute {
+  margin-left: 0;
+}
+
+/* 보호자가 보는 화면이라 내용이 길어 스크롤을 허용합니다 (아이 화면은 그대로 한 화면). */
+.settings {
+  overflow-y: auto;
+}
+
+.settings__gate {
+  margin-block: auto;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.settings__gate-q {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.settings__input {
+  min-height: var(--tap);
+  padding: 6px 12px;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+  width: 100%;
+  max-width: 180px;
+}
+
+.settings__warning {
+  margin: 0;
+  font-size: 18px;
+  color: #c2566f;
+}
+
+.settings__section {
+  border: 3px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 10px 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.settings__title {
+  margin: 0;
+  font-size: 20px;
+}
+
+.settings__note {
+  margin: 0;
+  font-size: 18px;
+  color: #7b6a5d;
+}
+
+.settings__log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 2px;
+}
+
+.settings__log-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 18px;
+  padding: 2px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.settings__log-value {
+  font-weight: 800;
+}
+
+.settings__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings__label {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.settings__row .settings__input {
+  flex: 1 1 110px;
+  text-align: left;
 }

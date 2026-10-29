@@ -9,12 +9,9 @@
 플레이어는 1학년 담임 선생님이고, 닥스훈트(남)·푸들(여) 두 마리를 돌봅니다.
 **현실의 하루 = 게임의 하루**이며, 할 일이 자연스럽게 없어져서 아이가 스스로 앱을 끄게 만드는 것이 설계 목표입니다.
 
-현재 구현 범위는 **SPEC 12번의 "1단계 MVP"까지** + 밑작업 셋입니다.
-- 수업 문제 생성기 `src/lib/lessons.ts` 와 낱말 데이터 `src/data/words.ts` (2단계용, 화면은 아직 없음)
-- 코인 경제 규칙 `src/state/economy.ts` + reducer 의 `BUY_OUTFIT`·`UPGRADE_HOUSE`·호감도 단계 선물 (3단계용)
+현재 구현 범위는 **SPEC 12번 전체(1~4단계)** 입니다 — 1단계 MVP, 2단계(출근·수업·코인), 3단계(옷가게·집·산책·미용실), 4단계(병원·보호자 설정). (2026-10-29 실행 검증 완료)
 - PWA `public/` (manifest·아이콘·서비스 워커)
-
-2단계(출근·수업·코인 벌기), 3단계(옷가게·집·산책·미용실), 4단계(병원·보호자 설정·배포)의 **화면은 아직 없습니다.**
+- 배포 워크플로 `.github/workflows/deploy.yml` — **GitHub Pages 설정은 아직 사람이 한 번 켜야 합니다** ([HANDOFF.md](HANDOFF.md))
 
 ## 절대 원칙 (모든 구현 결정보다 우선 — SPEC 1번)
 
@@ -29,26 +26,43 @@
 ## 코드 규칙 (이 저장소의 약속)
 
 - **모든 수치는 [src/constants.ts](src/constants.ts) 한 곳에만 둔다.** 호감도 상승·하락, 코인, 가격, 확률, 연출 시간, 목욕 목표 횟수까지. 화면 코드에 숫자를 직접 쓰지 않는다.
-- **보상은 reducer의 `REWARD` 액션 하나만 통과한다.** `today.done[action]`이 true면 즉시 반환해 아무 것도 주지 않는다. 새 보상 행동을 추가할 때도 반드시 이 경로를 쓴다 ([src/state/gameReducer.ts](src/state/gameReducer.ts)).
+- **호감도 보상은 reducer의 `REWARD`, 코인은 `SOLVE_QUESTION` — 각각 한 경로만 통과한다.** `today.done[action]`이 true면 즉시 반환해 아무 것도 주지 않는다. 새 보상 행동을 추가할 때도 반드시 이 경로를 쓴다 ([src/state/gameReducer.ts](src/state/gameReducer.ts)).
 - **그림은 [src/assets/](src/assets/index.ts) 안에만 둔다.** 지금은 SVG/CSS 플레이스홀더다. 나중에 실제 그림으로 바꿀 때 화면 코드를 건드리지 않도록, 화면은 `assets/index.ts`에서만 가져온다.
-- **진행 잠금은 [src/state/selectors.ts](src/state/selectors.ts)의 `canDo()`에서만 판단한다.** 단계가 늘어나면 여기에 추가한다.
+- **진행 잠금은 [src/state/selectors.ts](src/state/selectors.ts)의 `canDo()`에서만 판단한다.** 단계가 늘어나면 여기와 `DAY_FLOW` 에 순서를 추가한다.
 - **코인을 쓰는 규칙은 [src/state/economy.ts](src/state/economy.ts)에서만 판단한다.** reducer 와 화면이 같은 함수를 쓰게 해서 "버튼은 켜졌는데 실제로는 안 되는" 상태가 생기지 않게 한다.
 - 상태 관리는 `useReducer` + Context. 외부 라이브러리를 늘리지 않는다.
 - 저장은 `localStorage` 키 `dogapp:save:v1` 한 곳. 서버·로그인·계정 없음.
-- 아이에게 **거짓 예고를 하지 않는다.** 내일 예고 문구는 실제로 구현된 기능만 말한다 (수업 예고는 2단계가 생긴 뒤에 추가).
+- 아이에게 **거짓 예고를 하지 않는다.** 내일 예고 문구는 실제로 구현된 기능만 말한다.
+  요일도 본다 — 주말 전날에는 출근·수업을 예고하지 않는다 ([NightScreen.tsx](src/screens/NightScreen.tsx)).
+  지금 열려 있는 단계는 [src/constants.ts](src/constants.ts) 의 `CURRENT_STAGE` 한 곳에서 정한다. 체크판 자물쇠·코인 표시(`COINS_ENABLED`, 2단계)·가격표(`SHOP_ENABLED`, 3단계)·강아지집(`HOUSE_ENABLED`, 3단계)이 모두 이 값을 본다.
+  **코인을 버는 단계와 쓰는 단계가 다르므로 둘을 따로 둔다** — 쓸 곳이 없는데 가격표를 보여주면 아이에게는 거짓 예고다.
+  **아직 안 열린 단계의 아이템은 자물쇠로 늘어놓지 말고 아예 숨긴다.** 자물쇠 N개는 "나중에"를 N번 약속하는 것과 같다
+  (옷 입히기 9칸 중 7~8칸이 자물쇠였던 문제 — 2026-10-22 수정).
+- **체크판 밖 보너스(미용실)는 `DAY_FLOW` 에 넣지 않는다.** 순서에 끼우면 "안 하면 안 되는 일"이 되어 하루가 길어진다. 여는 조건만 `canDo()` 에 두고, 홈에서는 조건이 맞을 때만 버튼을 보여준다.
+- **보상(선물·코인)을 주는 코드는 그걸 아이에게 보여주는 화면과 같은 단계에서 넣는다.**
+  (호감도 80 선물 옷이 1단계에서 조용히 지급되고 축하 화면은 없던 문제 — 2026-10-21 수정)
+- **누를 수 없는 것은 버튼처럼 그리지 않는다.** 체크판·밤 예고는 표시일 뿐이므로 흰 카드·테두리·그림자 없이 납작하게 둔다.
+- **모든 동작은 탭으로 끝낼 수 있어야 한다.** 끌기(출근 준비)·문지르기(목욕)는 보조 수단이고 탭 경로가 이미 있다 — 안내 문구에 둘 다 적는다.
+- **화면이 세로로 비면 덩어리 양 끝에 `margin: auto` 를 하나씩 둔다.** 덩어리 사이에 넣으면 문제와 보기가 따로 논다 ([src/styles.css](src/styles.css) "빈 공간 메우기").
+- 글씨 18px·탭 56px 은 측정으로 확인한다: 콘솔에서 `getComputedStyle` 로 훑으면 한 번에 나온다.
+- **reducer 를 고치면 `npm test` 를 돌린다.** 화면 없이 도는 자가 점검이다 — 하루 1회 제한, 코인 중복, 날짜 되돌림, 아픔 규칙(유예·7일 쿨다운·다음 날 자동 회복)을 본다 ([scripts/check-reducer.mjs](scripts/check-reducer.mjs)).
+- **아픔·병원은 벌칙이 아니다.** 병원은 아픈 날에만, 대신 하루 중 언제든 열린다. 안 데려가도 다음 날 저절로 낫고 잃는 것이 없어야 한다.
 - 새 기능을 넣기 전에 SPEC 13번 체크리스트([docs/CHECKLIST.md](docs/CHECKLIST.md))를 깨뜨리지 않는지 본다.
 
 ## 환경
 
-- Windows / PowerShell. `&&` 체이닝이 안 되므로 `A; if ($?) { B }` 를 쓴다.
-- **Node.js가 아직 설치되어 있지 않다.** 그래서 지금까지 타입 검사와 브라우저 실행을 한 번도 하지 못했다. 다른 기기에서 이어받으면 **가장 먼저** `npm install` → `npm run typecheck` 를 돌려 잔 오류를 잡는다.
-- 명령어: `npm run dev` / `npm run build` / `npm run preview` / `npm run typecheck`
+- macOS / bash, Node v24 · npm 11 에서 실행·타입 검사·빌드 확인함 (2026-10-21).
+  최초 작성 환경은 Windows / PowerShell 이었다. 거기서는 `&&` 체이닝이 안 되므로 `A; if ($?) { B }` 를 쓴다.
+- 새 기기에서 이어받으면 **가장 먼저** `npm install` → `npm run typecheck` 를 돌린다.
+- 명령어: `npm run dev` / `npm run build` / `npm run preview` / `npm run typecheck` / `npm test`
 - 개발용 날짜 강제: `http://localhost:5173/?debugDate=2026-10-21` (개발 모드에서만 동작)
 - 저장 초기화: 브라우저 콘솔에서 `localStorage.removeItem('dogapp:save:v1')` 후 새로고침
 
 ## 아직 안 정한 것 [TBD]
 
-1. 옷 목록 — 멋진 옷 5벌 / 예쁜 옷 5벌을 아이가 고른다 (지금은 명세의 임시 예시)
-2. 추천 이름 4개를 그대로 쓸지
-3. 실제 그림을 그릴지, 플레이스홀더 아트로 계속 갈지
-4. ~~앱 이름~~ → **확정: 한글 "월월 선생님" / 영어 "woof-teacher"** ([docs/NAMING.md](docs/NAMING.md))
+1. 추천 이름 4개를 그대로 쓸지
+2. 실제 그림을 그릴지, 플레이스홀더 아트로 계속 갈지
+3. ~~앱 이름~~ → **확정: 한글 "월월 선생님" / 영어 "woof-teacher"** ([docs/NAMING.md](docs/NAMING.md))
+4. ~~옷 목록~~ → **확정** (2026-10-21). 강아지마다 머리 2 · 몸 2 · 얼굴 1, 가격 20/20/30/40.
+   이름이나 색은 아이가 나중에 바꿔도 되지만 **슬롯 구성과 가격은 유지한다** — 슬롯이 비면 못 채우는 칸이 생기고,
+   왕관은 호감도 100 왕관과 겹치므로 옷으로 넣지 않는다 ([src/constants.ts](src/constants.ts) `OUTFITS`)

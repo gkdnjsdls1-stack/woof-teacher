@@ -52,8 +52,11 @@ self.addEventListener('fetch', (event) => {
         } catch {
           const cached = await cache.match(request);
           if (cached) return cached;
-          const fallback = await cache.match('./index.html');
-          if (fallback) return fallback;
+          // navigate 요청은 보통 './' 로 캐시에 들어갑니다. index.html 도 함께 봐 둡니다.
+          for (const key of ['./', './index.html']) {
+            const fallback = await cache.match(key);
+            if (fallback) return fallback;
+          }
           throw new Error('offline and nothing cached');
         }
       }

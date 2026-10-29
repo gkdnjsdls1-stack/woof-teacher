@@ -37,7 +37,7 @@
 | 파일 | 역할 |
 |---|---|
 | `main.tsx` | 진입점. React 띄우기 + 서비스 워커 등록(빌드에서만) |
-| `App.tsx` | 화면 전환 (로딩 → 이름 짓기 → 홈/옷/목욕/재우기 → 밤), 세로 안내, debugDate 표시 |
+| `App.tsx` | 화면 전환 (로딩 → 이름 짓기 → 홈/옷/출근/수업/목욕/재우기 → 밤), 축하 연출, 세로 안내, debugDate 표시 |
 | `constants.ts` | **★ 모든 수치.** 호감도·코인·가격·확률·연출 시간·목욕 횟수·문제 범위 |
 | `types.ts` | 데이터 모델 (SPEC 10번과 동일) |
 | `styles.css` | 전체 스타일. 큰 버튼(56px), 큰 글씨(18px), 파스텔, 세로 전용 |
@@ -49,7 +49,7 @@
 | `gameReducer.ts` | **상태 변경이 전부 여기.** 보상은 `REWARD` 하나만 통과(하루 1회 보장), 새 하루 처리, 구매·업그레이드, 호감도 단계 선물 |
 | `GameContext.tsx` | reducer 를 화면에 연결, 저장, 자정·복귀 감지, 효과음 |
 | `selectors.ts` | 진행 잠금 — 지금 무엇을 할 수 있는지(`canDo`), 다음에 할 일(`nextAction`) |
-| `economy.ts` | 코인 규칙 — 살 수 있는지, 집을 올릴 수 있는지, 다음 집까지 남은 코인 |
+| `economy.ts` | 코인 규칙 — 수업에서 **얼마를 받는지**(reducer 와 화면이 같은 함수), 살 수 있는지, 집을 올릴 수 있는지 |
 
 ### 화면 (`src/screens/`)
 
@@ -58,9 +58,17 @@
 | `LoadingScreen.tsx` | S0 발자국 |
 | `NamingScreen.tsx` | S1 선물 상자 → 이름 짓기 |
 | `HomeScreen.tsx` | S2 홈 — 체크판, 하트, 밥·물그릇, "다음에 할 일" |
-| `DressScreen.tsx` | S3 옷 입히기 |
+| `DressScreen.tsx` | S3 옷 입히기 (→ 옷가게 입구) |
+| `ShopScreen.tsx` | S4 옷가게 — 오늘의 새 옷, 코인으로 구매 |
+| `CommuteScreen.tsx` | S5+S6 출근 준비(목줄·입마개 드래그) → 오픈카 이동 → 도착 |
+| `LessonScreen.tsx` | S7 교실 (문제 5종 그리기) + 주말 소풍. 코인은 여기서만 생깁니다 |
+| `WalkScreen.tsx` | S8 산책 — 흐르는 공원, 꽃·나비·공 탭, 끝 지점 도착 |
+| `GroomScreen.tsx` | S9 미용실 — 가위 → 드라이어 → 커튼 "짠!" (체크판 밖 보너스) |
 | `WashScreen.tsx` | S11 목욕 (거품 → 헹굼 → 수건) |
+| `HouseScreen.tsx` | S12 집 업그레이드 (홈의 강아지집을 누르면 들어갑니다) |
 | `SleepScreen.tsx` | 재우기 (불 끄기) |
+| `HospitalScreen.tsx` | S10 병원 — 청진기 → 약 젤리 → 반창고 (아픈 날에만) |
+| `SettingsScreen.tsx` | S14 보호자 설정 (숨김) — 톱니바퀴 3초 + 덧셈 관문 |
 | `NightScreen.tsx` | S13 밤 · 내일 예고 |
 
 ### 부품 (`src/components/`)
@@ -68,6 +76,7 @@
 | 파일 | 역할 |
 |---|---|
 | `BigButton.tsx` | 큰 버튼 (56px 이상) |
+| `CelebrationOverlay.tsx` | 호감도 50·80·100 축하 연출 (큐를 하나씩 비움) |
 | `CheckBoard.tsx` | 오늘의 체크판 8칸 |
 | `HeartGauge.tsx` | 하트 게이지 |
 | `SpeechBubble.tsx` | 말풍선 ("월월" 계열만) |
@@ -78,10 +87,10 @@
 | 파일 | 역할 |
 |---|---|
 | `index.ts` | 화면이 가져다 쓰는 입구 |
-| `Dog.tsx` | 강아지 2종 × 표정 5개 + 꼬리 흔들기 |
+| `Dog.tsx` | 강아지 2종 × 표정 5개 + 꼬리 흔들기 + 왕관 · 목줄 · 입마개 |
 | `Outfits.tsx` | 옷 12벌 레이어 + 목록용 이모지 |
-| `Props.tsx` | 그릇, 집 4단계, 선물 상자, 샤워기, 수건, 거품, 발자국, 달 |
-| `geometry.ts` | 옷을 붙이는 기준점 |
+| `Props.tsx` | 그릇, 집 4단계, 선물 상자, 샤워기, 수건, 거품, 발자국, 달, **목줄·입마개·오픈카·학생·시계** |
+| `geometry.ts` | 옷·목줄·입마개를 붙이는 기준점 |
 | `palette.ts` | 색상 |
 
 ### 도움 함수 (`src/lib/`)
@@ -92,7 +101,7 @@
 | `storage.ts` | localStorage 읽기·쓰기 + 깨진 저장 걸러내기 |
 | `sound.ts` | 효과음 (음원 파일 없이 WebAudio 로 합성) |
 | `random.ts` | 날짜를 시드로 쓰는 결정적 난수 |
-| `lessons.ts` | **수업 문제 생성 5종 (2단계 밑작업).** 아직 화면에 연결 안 됨 |
+| `lessons.ts` | **수업 문제 생성 5종.** `LessonScreen` 이 그립니다 |
 
 ### 데이터 (`src/data/`)
 
@@ -121,7 +130,6 @@
 | 없는 것 | 왜 |
 |---|---|
 | `node_modules/` | `npm install` 이 만듭니다 |
-| `package-lock.json` | 아직 한 번도 `npm install` 을 못 돌렸습니다. 처음 설치할 때 생깁니다 |
 | `dist/` | `npm run build` 가 만듭니다 |
 | 테스트 코드 | 아직 없습니다 |
-| 2~4단계 화면 | 범위 밖입니다 ([HANDOFF.md](../HANDOFF.md) 참고) |
+| 3~4단계 화면 | 옷가게·집·산책·미용실·병원은 아직 없습니다 ([HANDOFF.md](../HANDOFF.md) 참고) |

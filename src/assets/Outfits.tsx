@@ -11,18 +11,28 @@ import { DOG_GEOMETRY } from './geometry';
 export const OUTFIT_EMOJI: Record<string, string> = {
   dx_bowtie: '👔',
   dx_sunglasses: '🕶️',
-  dx_shirt: '👕',
+  dx_cap: '🧢',
+  dx_police: '👮',
   dx_jacket: '🧥',
-  dx_police: '🧢',
   pd_ribbon: '🎀',
+  pd_heartglasses: '💖',
   pd_flowerpin: '🌸',
   pd_dress: '👗',
   pd_cape: '🧣',
-  pd_crown: '👑',
   // 호감도 80 선물 옷
   dx_hero_cape: '🦸',
   pd_fairy_wings: '🧚',
 };
+
+/** 하트 한 개 (하트 안경에 씁니다) */
+function heartPath(cx: number, cy: number, size: number): string {
+  return [
+    `M${cx},${cy + size * 0.75}`,
+    `C${cx - size * 1.15},${cy - size * 0.1} ${cx - size * 0.55},${cy - size} ${cx},${cy - size * 0.25}`,
+    `C${cx + size * 0.55},${cy - size} ${cx + size * 1.15},${cy - size * 0.1} ${cx},${cy + size * 0.75}`,
+    'Z',
+  ].join(' ');
+}
 
 export function OutfitLayer({ id, breed }: { id: string; breed: DogId }) {
   const g = DOG_GEOMETRY[breed];
@@ -50,20 +60,14 @@ export function OutfitLayer({ id, breed }: { id: string; breed: DogId }) {
         </g>
       );
     }
-    case 'dx_shirt': {
-      const { x, y } = g.body;
+    case 'dx_cap': {
+      const { x, y } = g.head;
       return (
         <g>
-          <path
-            d={`M${x - 26},${y - 12} q26,-8 52,0 l0,16 q-26,10 -52,0 z`}
-            fill="#8FB7E8"
-          />
-          <g stroke="#6B93C4" strokeWidth={1.4}>
-            <line x1={x - 16} y1={y - 13} x2={x - 16} y2={y + 3} />
-            <line x1={x} y1={y - 15} x2={x} y2={y + 4} />
-            <line x1={x + 16} y1={y - 13} x2={x + 16} y2={y + 3} />
-            <line x1={x - 26} y1={y - 5} x2={x + 26} y2={y - 7} />
-          </g>
+          {/* 챙은 강아지가 보는 쪽(오른쪽)으로 */}
+          <path d={`M${x - 2},${y + 3} q16,-2 20,2 q-10,4 -20,1 z`} fill="#4FA98A" />
+          <path d={`M${x - 14},${y + 3} q14,-15 28,0 z`} fill="#6FC7A5" />
+          <path d={`M${x},${y - 7} l1.6,3.4 l3.7,0.4 l-2.8,2.5 l0.8,3.6 l-3.3,-1.9 l-3.3,1.9 l0.8,-3.6 l-2.8,-2.5 l3.7,-0.4 z`} fill="#FFE27A" />
         </g>
       );
     }
@@ -139,17 +143,14 @@ export function OutfitLayer({ id, breed }: { id: string; breed: DogId }) {
         </g>
       );
     }
-    case 'pd_crown': {
-      const { x, y } = g.head;
+    case 'pd_heartglasses': {
+      const { x, y } = g.face;
       return (
         <g>
-          <path
-            d={`M${x - 13},${y + 4} l0,-9 l6.5,5 l6.5,-10 l6.5,10 l6.5,-5 l0,9 z`}
-            fill="#F7D35B"
-            stroke="#DFB531"
-            strokeWidth={1.2}
-          />
-          <circle cx={x} cy={y - 7} r={1.8} fill="#FF8FB3" />
+          <line x1={x - 10} y1={y - 1} x2={x + 10} y2={y - 1} stroke="#F76FA8" strokeWidth={2} />
+          <path d={heartPath(x - 5, y, 5.4)} fill="#FF9EC4" stroke="#F76FA8" strokeWidth={1} />
+          <path d={heartPath(x + 5, y, 5.4)} fill="#FF9EC4" stroke="#F76FA8" strokeWidth={1} />
+          <circle cx={x - 6.5} cy={y - 1.5} r={1.2} fill="#FFFFFF" opacity={0.75} />
         </g>
       );
     }

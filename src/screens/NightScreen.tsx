@@ -2,7 +2,16 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Dog, MoonAndStars } from '../assets';
 import { SpeechBubble } from '../components/SpeechBubble';
-import { BARKS, DOG_ORDER, TIMING, TOMORROW_PREVIEWS, WEEKDAY_LABEL } from '../constants';
+import {
+  BARKS,
+  DOG_ORDER,
+  LESSON_BY_WEEKDAY,
+  TIMING,
+  TOMORROW_PREVIEWS,
+  TOMORROW_WEEKDAY_PREVIEWS,
+  TOMORROW_WEEKEND_PREVIEWS,
+  WEEKDAY_LABEL,
+} from '../constants';
 import { addDays, weekdayIndex } from '../lib/date';
 import { makeRng, pickRandom, seedFromString } from '../lib/random';
 import { useGame } from '../state/GameContext';
@@ -15,7 +24,12 @@ import type { DogId, SaveData } from '../types';
 function buildPreviews(save: SaveData): string[] {
   const tomorrow = addDays(save.today.date, 1);
   const rng = makeRng(seedFromString(tomorrow));
-  const indexes = TOMORROW_PREVIEWS.map((_, i) => i);
+  // 주말에는 출근·수업이 없으므로 그 예고를 섞지 않습니다 (거짓 예고 금지 — SPEC 1번).
+  const pool =
+    LESSON_BY_WEEKDAY[weekdayIndex(tomorrow)] === 'picnic'
+      ? [...TOMORROW_PREVIEWS, ...TOMORROW_WEEKEND_PREVIEWS]
+      : [...TOMORROW_PREVIEWS, ...TOMORROW_WEEKDAY_PREVIEWS];
+  const indexes = pool.map((_, i) => i);
   for (let i = indexes.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
     [indexes[i], indexes[j]] = [indexes[j], indexes[i]];
@@ -23,7 +37,7 @@ function buildPreviews(save: SaveData): string[] {
   const names = DOG_ORDER.map((id) => save.dogs[id].name);
   const cards = indexes.slice(0, 2).map((i) => {
     const name = names[Math.floor(rng() * names.length) % names.length];
-    return TOMORROW_PREVIEWS[i].replace('{name}', name);
+    return pool[i].replace('{name}', name);
   });
   cards.unshift(`내일은 ${WEEKDAY_LABEL[weekdayIndex(tomorrow)]}요일이에요 🗓️`);
   return cards;

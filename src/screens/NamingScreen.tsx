@@ -91,7 +91,9 @@ export function NamingScreen({ onDone }: { onDone: () => void }) {
   if (phase === 'box') {
     return (
       <div className="screen screen--center naming">
-        <h2 className="naming__title">선물 상자가 흔들려요! 🎁</h2>
+        <h2 className="naming__title">
+          {index === 0 ? '선물 상자가 흔들려요! 🎁' : '상자가 하나 더 있어요! 🎁'}
+        </h2>
         <p className="naming__hint">상자를 콕 눌러보세요</p>
         <div className="naming__boxes">
           <button
@@ -112,7 +114,7 @@ export function NamingScreen({ onDone }: { onDone: () => void }) {
             aria-label="두 번째 선물 상자 열기"
           >
             <GiftBox size={132} color="#F5A3BD" />
-            <span className="gift__bark">{index === 1 ? '월월!' : '🎁'}</span>
+            {index === 1 && <span className="gift__bark">월월!</span>}
           </button>
         </div>
       </div>

@@ -18,12 +18,23 @@ export const PALETTE = {
   tongue: '#F28BA0',
   cheek: '#F9B8C4',
   // 소품
-  bowl: '#8FC8E8',
-  bowlDark: '#6AA8CC',
+  // 밥그릇과 물그릇은 비었을 때도 서로 구분돼야 해서 색을 따로 둡니다.
+  bowl: '#F2C79A', // 밥그릇 (따뜻한 색)
+  bowlDark: '#CB9A64',
+  bowlWater: '#C8E8F7', // 물그릇 (찬 색)
+  bowlWaterDark: '#6AA8CC',
   food: '#9A6B3E',
   water: '#7FD4F5',
   soap: '#E8F6FF',
   towel: '#FFD79B',
+  // 출근·수업 (2단계)
+  car: '#E8453C',
+  carDark: '#C2342C',
+  carSeat: '#F6D9A8',
+  leash: '#7FB7E8',
+  muzzle: '#C9BBA8',
+  board: '#8FB89A',
+  desk: '#E3C79C',
   // 배경
   room: '#FFF4E3',
   night: '#2B2D52',

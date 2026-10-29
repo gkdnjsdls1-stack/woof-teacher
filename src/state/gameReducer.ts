@@ -8,6 +8,7 @@
 
 import {
   COINS_START,
+  DOG_ORDER,
   FREE_OUTFITS,
   GIFT_OUTFITS,
   HEARTS_DECAY_FLOOR,
@@ -21,13 +22,23 @@ import {
   MILESTONES,
   MILESTONE_KISS,
   OUTFITS,
+  PLAYTIME_LOG_DAYS,
   SAVE_VERSION,
+  SICK_COOLDOWN_DAYS,
+  SICK_DAILY_CHANCE,
+  SICK_GRACE_DAYS,
   WELCOME_BACK_MISSED_DAYS,
 } from '../constants';
 import { daysBetween, weekdayIndex } from '../lib/date';
 import { makeRng, pick, seedFromString } from '../lib/random';
 import type { DayDone, DayState, Dog, DogId, OutfitSlot, RewardAction, SaveData } from '../types';
-import { canBuyOutfit, houseUpgradeCost, nextHouseLevel, outfitById } from './economy';
+import {
+  canBuyOutfit,
+  houseUpgradeCost,
+  lessonCoinGain,
+  nextHouseLevel,
+  outfitById,
+} from './economy';
 
 /** 아직 보여주지 않은 호감도 단계 축하 연출 (저장하지 않는 일회성 값) */
 export interface Celebration {
@@ -47,9 +58,12 @@ export interface GameState {
 export type GameAction =
   | { type: 'NAME_DOGS'; names: Record<DogId, string> }
   | { type: 'REWARD'; action: RewardAction }
+  | { type: 'SOLVE_QUESTION'; index: number }
   | { type: 'EQUIP'; dogId: DogId; slot: OutfitSlot; outfitId: string | null }
   | { type: 'BUY_OUTFIT'; dogId: DogId; outfitId: string }
   | { type: 'UPGRADE_HOUSE'; dogId: DogId }
+  | { type: 'ADD_PLAYTIME'; seconds: number }
+  | { type: 'RENAME_DOG'; dogId: DogId; name: string }
   | { type: 'DAY_CHECK'; today: string }
   | { type: 'DISMISS_WELCOME' }
   | { type: 'DISMISS_CELEBRATION' }
@@ -143,6 +157,13 @@ function applyMilestones(dog: Dog): { dog: Dog; reached: number[] } {
   return { dog: next, reached };
 }
 
+/** 아픔 표시만 지웁니다 (`lastSickDate` 는 7일 쿨다운 때문에 남겨둡니다). */
+function healAll(dogs: Record<DogId, Dog>): Record<DogId, Dog> {
+  const next = {} as Record<DogId, Dog>;
+  for (const id of DOG_ORDER) next[id] = { ...dogs[id], sickUntil: undefined };
+  return next;
+}
+
 function addHeartsToAll(
   dogs: Record<DogId, Dog>,
   amount: number,
@@ -175,6 +196,38 @@ function decayHearts(dogs: Record<DogId, Dog>, missedDays: number): Record<DogId
   return next;
 }
 
+/**
+ * 하루 시작 시 아픔 판정 (SPEC 6-8).
+ * 날짜를 시드로 쓰므로 같은 날 앱을 다시 켜도 결과가 바뀌지 않습니다.
+ * 어제 아팠던 강아지는 **치료하지 않아도 오늘 저절로 낫습니다** (벌칙 없음 — 절대 원칙 4번).
+ */
+function rollSickness(dogs: Record<DogId, Dog>, createdAt: string, today: string): Record<DogId, Dog> {
+  const next = {} as Record<DogId, Dog>;
+  // 시작 후 며칠 동안은 아프지 않습니다.
+  const grace = daysBetween(createdAt, today) < SICK_GRACE_DAYS;
+  const rng = makeRng(seedFromString(`sick:${today}`));
+  for (const id of DOG_ORDER) {
+    const dog = dogs[id];
+    // 주사위는 조건과 상관없이 강아지마다 한 번씩 굴립니다 (같은 날 같은 결과가 나오도록).
+    const roll = rng();
+    const cooled = !dog.lastSickDate || daysBetween(dog.lastSickDate, today) >= SICK_COOLDOWN_DAYS;
+    next[id] =
+      !grace && cooled && roll < SICK_DAILY_CHANCE
+        ? { ...dog, sickUntil: today, lastSickDate: today }
+        : { ...dog, sickUntil: undefined };
+  }
+  return next;
+}
+
+/** 최근 `PLAYTIME_LOG_DAYS` 일치만 남깁니다 (보호자 설정에서 보여줄 만큼만). */
+function trimPlaytimeLog(log: Record<string, number>, today: string): Record<string, number> {
+  const kept: Record<string, number> = {};
+  for (const [date, seconds] of Object.entries(log)) {
+    if (daysBetween(date, today) < PLAYTIME_LOG_DAYS) kept[date] = seconds;
+  }
+  return kept;
+}
+
 /* ───────────────────────── 새 하루 ───────────────────────── */
 
 function dayCheck(state: GameState, today: string): GameState {
@@ -191,10 +244,10 @@ function dayCheck(state: GameState, today: string): GameState {
   return {
     save: {
       ...save,
-      dogs: decayHearts(save.dogs, missedDays),
+      dogs: rollSickness(decayHearts(save.dogs, missedDays), save.createdAt, today),
       today: createDayState(today),
       lastPlayedDate: today,
-      // 아픔 발생 판정과 "오늘의 새 옷" 알림은 4단계·3단계에서 여기에 붙습니다.
+      playtimeLog: trimPlaytimeLog(save.playtimeLog, today),
     },
     missedDays: missedDays >= WELCOME_BACK_MISSED_DAYS ? missedDays : 0,
     // 어제 못 보여준 축하 연출은 하루가 바뀌면 흘려보냅니다.
@@ -227,11 +280,35 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (save.today.done[action.action]) return state;
       const done: DayDone = { ...save.today.done };
       done[action.action] = true;
-      const { dogs, celebrations } = addHeartsToAll(save.dogs, HEART_GAIN[action.action]);
+      // 병원 치료는 호감도와 함께 아픔도 낫게 합니다 (보상 경로는 그대로 하나).
+      const base =
+        action.action === 'hospital' ? healAll(save.dogs) : save.dogs;
+      const { dogs, celebrations } = addHeartsToAll(base, HEART_GAIN[action.action]);
       return {
         ...state,
         save: { ...save, dogs, today: { ...save.today, done } },
         celebrations: [...state.celebrations, ...celebrations],
+      };
+    }
+
+    case 'SOLVE_QUESTION': {
+      // ★ 코인이 생기는 **유일한** 경로입니다 (2단계 수업·주말 소풍).
+      // 문제 하나당 첫 정답에만 지급하므로, 같은 문제를 다시 맞혀도 코인은 오르지 않습니다.
+      const { solved, type } = save.today.lesson;
+      if (action.index < 0 || action.index >= solved.length) return state;
+      if (solved[action.index]) return state;
+      // 소풍은 한 번만 보상합니다 (칸이 3개여도 0번만 사용)
+      if (type === 'picnic' && action.index !== 0) return state;
+      const nextSolved = [...solved];
+      nextSolved[action.index] = true;
+      const gain = lessonCoinGain(type);
+      return {
+        ...state,
+        save: {
+          ...save,
+          coins: save.coins + gain,
+          today: { ...save.today, lesson: { ...save.today.lesson, solved: nextSolved } },
+        },
       };
     }
 
@@ -285,6 +362,27 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             ...save.dogs,
             [action.dogId]: { ...dog, houseLevel: level },
           },
+        },
+      };
+    }
+
+    case 'ADD_PLAYTIME': {
+      // 보호자 설정의 확인용 기록입니다. 제한 기능은 없습니다 (SPEC 9번).
+      if (action.seconds <= 0) return state;
+      const date = save.today.date;
+      const log = { ...save.playtimeLog, [date]: (save.playtimeLog[date] ?? 0) + action.seconds };
+      return { ...state, save: { ...save, playtimeLog: log } };
+    }
+
+    case 'RENAME_DOG': {
+      // 이름 변경은 보호자 설정에서만 (SPEC 6-2). 빈 이름으로는 바꾸지 않습니다.
+      const name = action.name.trim();
+      if (!name) return state;
+      return {
+        ...state,
+        save: {
+          ...save,
+          dogs: { ...save.dogs, [action.dogId]: { ...save.dogs[action.dogId], name } },
         },
       };
     }

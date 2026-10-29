@@ -5,6 +5,7 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   type ReactNode,
 } from 'react';
 
@@ -46,18 +47,45 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setMuted(state.save.settings.muted);
   }, [state.save.settings.muted]);
 
-  // 새 하루 확인: 포그라운드 복귀 + 주기적 확인(자정을 넘겨 켜둔 경우).
+  /**
+   * 플레이 시간: **화면에 보이는 동안만** 셉니다 (SPEC 9번).
+   * 켜 놓고 자리를 비운 시간이 기록에 섞이면 보호자가 보는 숫자가 거짓이 됩니다.
+   */
+  const visibleSince = useRef<number | null>(null);
+
+  // 새 하루 확인 + 플레이 시간 적립: 포그라운드 복귀 · 주기적 확인(자정을 넘겨 켜둔 경우).
   useEffect(() => {
     const check = () => dispatch({ type: 'DAY_CHECK', today: getTodayString() });
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') check();
+    const flush = () => {
+      if (visibleSince.current === null) return;
+      const now = Date.now();
+      const seconds = Math.round((now - visibleSince.current) / 1000);
+      visibleSince.current = now;
+      if (seconds > 0) dispatch({ type: 'ADD_PLAYTIME', seconds });
     };
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        visibleSince.current = Date.now();
+        check();
+      } else {
+        flush();
+        visibleSince.current = null;
+      }
+    };
+    if (document.visibilityState === 'visible') visibleSince.current = Date.now();
+
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('focus', check);
-    const timer = window.setInterval(check, TIMING.dayCheckInterval);
+    window.addEventListener('pagehide', flush);
+    const timer = window.setInterval(() => {
+      flush();
+      check();
+    }, TIMING.dayCheckInterval);
     return () => {
+      flush();
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('focus', check);
+      window.removeEventListener('pagehide', flush);
       window.clearInterval(timer);
     };
   }, []);
