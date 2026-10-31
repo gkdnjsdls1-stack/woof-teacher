@@ -17,7 +17,7 @@ SPEC 12번 **4단계(병원·보호자 설정)까지 구현을 마쳤고, 2026-1
 |---|---|---|
 | S0 로딩 | [src/screens/LoadingScreen.tsx](src/screens/LoadingScreen.tsx) | 발자국 애니메이션 0.9초 |
 | S1 이름 짓기 | [src/screens/NamingScreen.tsx](src/screens/NamingScreen.tsx) | 선물 상자 2개 → 추천 이름 4개 / 직접 입력(1~6글자) |
-| S2 홈 | [src/screens/HomeScreen.tsx](src/screens/HomeScreen.tsx) | 체크판 8칸, 하트 게이지, 집, 밥·물그릇, 쓰다듬기(보상 없음), "다음에 할 일" 하나만 반짝 |
+| S2 홈 | [src/screens/HomeScreen.tsx](src/screens/HomeScreen.tsx) | 하트 게이지, 집, 밥·물그릇, 쓰다듬기(보상 없음), **할 수 있는 일 버튼 전부**(순서 없음) |
 | S3 옷 입히기 | [src/screens/DressScreen.tsx](src/screens/DressScreen.tsx) | 슬롯 머리/몸/얼굴, 무료 1벌, 나머지는 가격표(3단계부터 옷가게로) |
 | S11 목욕 | [src/screens/WashScreen.tsx](src/screens/WashScreen.tsx) | 거품 → 헹구기 → 수건 → 반짝 |
 | 재우기 | [src/screens/SleepScreen.tsx](src/screens/SleepScreen.tsx) | 불 끄기 → "쿨쿨 💤" |
@@ -95,6 +95,17 @@ SPEC 12번 **4단계(병원·보호자 설정)까지 구현을 마쳤고, 2026-1
 - `Outfits.tsx` 200줄 · `Dog.tsx` 455→130줄로 줄었습니다
 - **아직 SVG**: 강아지집 4단계 · 시계 바늘 · 학생 (그림 한 장으로는 못 그리는 것들)
 - 덤으로 고침: 밤 화면 코인 숫자가 흰 알약 위 흰 글씨였던 것, 출근 화면의 회색 길 띠 삭제, 소풍날 배경을 공원으로
+
+## 순서 강제 제거 (2026-10-31)
+
+**체크판 8칸 · "다음에 할 일" 버튼 · 홈의 흰 패널을 지웠습니다.** 홈에 행동 버튼이 전부 깔려 있고
+아이가 아무 순서로나 누릅니다 ([docs/DECISIONS.md](docs/DECISIONS.md) 99~104번).
+
+- `canDo()` 에 남은 조건: **재우면 하루 끝**, **병원은 아픈 날만**. 그 외에는 전부 열려 있습니다
+- **하루 1회 제한은 그대로** — 끝낸 버튼은 ✅ 로 바뀌고 꺼집니다 (절대 원칙 3번)
+- `DAY_FLOW` · `CHECKBOARD` 상수와 `CheckBoard.tsx` · `nextAction()` · `isMorningDone()` 삭제
+- 밤 화면 문구를 "오늘 할 일을 다 했어요!" → "강아지들이 잠들었어요 🌙" 로 — 아무것도 안 하고 재우면 거짓이 됩니다
+- **하루 길이 설계가 흔들립니다** — 순서가 없으니 아이가 어디까지 했는지 스스로 못 볼 수 있습니다. 플레이 시간 측정이 더 급해졌습니다
 
 ## 직접 확인해야 할 것 (아직 못 한 것)
 

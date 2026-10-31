@@ -374,48 +374,6 @@ h3 {
   font-size: 24px;
 }
 
-/* ───────────────────────── 체크판 ───────────────────────── */
-
-.checkboard {
-  list-style: none;
-  margin: 0;
-  padding: 2px 4px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2px 4px;
-}
-
-/* 체크판은 누르는 곳이 아니라 "오늘 어디까지 했나" 표시입니다.
-   흰 카드 + 그림자를 주면 버튼처럼 보여서 아이가 누르려 하므로 납작하게 둡니다. */
-.checkboard__cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  padding: 2px 0;
-  background: none;
-}
-
-.checkboard__cell--done .checkboard__label {
-  color: #3f9c75;
-}
-
-.checkboard__cell--locked {
-  opacity: 0.4;
-}
-
-.checkboard__emoji {
-  font-size: 22px;
-  line-height: 1;
-}
-
-.checkboard__label {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--ink-soft);
-  white-space: nowrap;
-}
-
 /* ───────────────────────── 하트 게이지 ───────────────────────── */
 
 .heart-gauge {
@@ -466,17 +424,15 @@ h3 {
 
 /* ───────────────────────── 홈 ───────────────────────── */
 
+/* 강아지는 배경 그림(방) 위에 바로 섭니다 — 네모 카드를 씌우지 않습니다.
+   아래로 붙여야 벽이 아니라 바닥에 선 것처럼 보입니다. */
 .home__scene {
   flex: 1;
   min-height: 213px;
-  align-items: center;
+  align-items: flex-end;
   display: flex;
   gap: 6px;
   padding: 10px 4px 0;
-  border-radius: var(--radius);
-  /* 배경 그림(방)이 비쳐야 하므로 반투명입니다. */
-  background: linear-gradient(180deg, rgba(255, 253, 247, 0.55) 0%, rgba(243, 249, 236, 0.45) 100%);
-  border: 2px solid rgba(255, 255, 255, 0.6);
 }
 
 .dog-slot {
@@ -556,21 +512,44 @@ h3 {
   font-weight: 800;
 }
 
-.home__next {
+/* 오늘 할 수 있는 일 — 순서가 없으므로 전부 같은 크기로 깔아둡니다.
+   두 칸씩, 한 칸이 탭 최소 크기(56px)를 넘습니다. */
+.home__actions {
   margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
-.home__next-label {
-  font-size: 18px;
-  font-weight: 700;
+.home__do {
+  min-height: var(--tap);
+  padding: 8px 10px;
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.home__do:active {
+  transform: translateY(2px);
+}
+
+/* 끝낸 일은 ✅ 로 바꾸고 끕니다 — 하루 1회라 두 번은 못 합니다 (절대 원칙 3번). */
+.home__do--done {
+  background: #f1f7f3;
+  border-color: #cfe7da;
   color: var(--ink-soft);
+  font-size: 18px;
 }
 
-/* 옷 입히기를 끝낸 뒤에도 언제든 다시 갈아입힐 수 있는 버튼 */
+.home__do--care {
+  border-color: #f6c6d2;
+  background: #fff6f8;
+}
+
+/* 옷 입히기·보호자 설정의 작은 알약 버튼 */
 .home__wardrobe {
   min-height: var(--tap);
   padding: 8px 18px;
@@ -1158,8 +1137,8 @@ h3 {
   .big-button {
     font-size: 20px;
   }
-  .checkboard {
-    padding: 6px 4px;
+  .home__do {
+    font-size: 18px;
   }
 }
 
@@ -1856,13 +1835,6 @@ h3 {
 
 /* ───────────────── 홈의 보너스 버튼 줄 ───────────────── */
 
-.home__extras {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-}
-
 /* 집은 이제 눌러서 업그레이드하러 갈 수 있습니다 (버튼 기본 모양은 지웁니다). */
 .dog-slot__house {
   border: 0;
@@ -1941,12 +1913,6 @@ h3 {
   50% {
     transform: translateY(4px);
   }
-}
-
-/* 아픈 날의 병원 버튼은 한눈에 보이게 */
-.home__wardrobe--care {
-  border-color: #f0b6c4;
-  background: #fff4f7;
 }
 
 /* ───────────────── S14 보호자 설정 (숨김) ───────────────── */

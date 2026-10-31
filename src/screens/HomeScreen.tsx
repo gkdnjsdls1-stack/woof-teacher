@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Dog, DogHouse, FoodBowl, WaterBowl, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
-import { CheckBoard } from '../components/CheckBoard';
 import { HeartGauge } from '../components/HeartGauge';
 import { SpeechBubble } from '../components/SpeechBubble';
 import { TopBar } from '../components/TopBar';
@@ -18,7 +17,7 @@ import {
 } from '../constants';
 import { pickRandom } from '../lib/random';
 import { useGame } from '../state/GameContext';
-import { canDo, nextAction, sickDogs } from '../state/selectors';
+import { canDo, sickDogs } from '../state/selectors';
 import type { DogId, DogMood } from '../types';
 
 export type HomeTarget =
@@ -33,17 +32,18 @@ export type HomeTarget =
   | 'hospital'
   | 'settings';
 
-/** S2 — 홈(강아지집). 다음에 할 일 버튼 하나만 크게 반짝입니다. */
+/**
+ * 홈에 깔리는 버튼. **순서가 없습니다** — 아무 거나 아무 때나 누릅니다.
+ * 밥·물은 그릇으로 따로 주므로 여기 없고, 미용실·병원은 조건이 있어 아래에서 붙입니다.
+ */
+const HOME_ACTIONS = ['dress', 'commute', 'lesson', 'walk', 'wash', 'sleep'] as const;
+
+/** S2 — 홈(강아지집). 오늘 할 수 있는 일을 전부 버튼으로 깔아둡니다. */
 export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) => void }) {
   const { state, dispatch, sound } = useGame();
   const save = state.save;
   const done = save.today.done;
-  const next = nextAction(save);
-  // 주말에는 수업 대신 소풍이라 버튼 문구만 바뀝니다 (없는 기능을 예고하지 않기 위해).
-  const nextLabel =
-    next === 'lesson' && save.today.lesson.type === 'picnic'
-      ? PICNIC_ACTION_LABEL
-      : next && ACTION_LABEL[next];
+  const picnic = save.today.lesson.type === 'picnic';
 
   const sick = sickDogs(save);
   const [bubble, setBubble] = useState<{ dogId: DogId; text: string } | null>(null);
@@ -95,18 +95,11 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
     }, TIMING.eating);
   }
 
-  function doNext() {
-    if (!next) return;
-    if (next === 'feed' || next === 'water') feedOrWater(next);
-    else onNavigate(next as HomeTarget);
-  }
-
   const baseMood: DogMood = !done.feed ? 'hungry' : done.wash ? 'sleepy' : 'happy';
 
   return (
     <div className="screen home" style={screenBg('home')}>
       <TopBar onSettings={() => onNavigate('settings')} />
-      <CheckBoard done={done} />
 
       <div className="home__scene">
         {DOG_ORDER.map((id) => {
@@ -175,45 +168,45 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
         </button>
       </div>
 
-      <footer className="home__next">
-        <div className="home__extras">
-          {done.dress && (
+      <footer className="home__actions">
+        {HOME_ACTIONS.map((key) => {
+          // 주말에는 수업 대신 소풍입니다 — 없는 기능을 예고하지 않으려고 문구만 바꿉니다.
+          const label = key === 'lesson' && picnic ? PICNIC_ACTION_LABEL : ACTION_LABEL[key];
+          const finished = done[key];
+          return (
             <button
+              key={key}
               type="button"
-              className="home__wardrobe"
-              onClick={() => onNavigate('dress')}
-              disabled={busy !== null}
+              className={finished ? 'home__do home__do--done' : 'home__do'}
+              onClick={() => onNavigate(key)}
+              disabled={finished || busy !== null}
             >
-              👕 옷 갈아입히기
+              {finished ? `${label} ✅` : label}
             </button>
-          )}
-          {/* 병원은 아픈 날에만 보입니다. 안 데려가도 다음 날 저절로 낫습니다 (벌칙 없음). */}
-          {canDo(save, 'hospital') && (
-            <button
-              type="button"
-              className="home__wardrobe home__wardrobe--care"
-              onClick={() => onNavigate('hospital')}
-              disabled={busy !== null}
-            >
-              🏥 병원 가기
-            </button>
-          )}
-          {/* 미용실은 체크판 밖의 보너스입니다 — 하루 1번, 학교에 다녀온 뒤에만 보입니다. */}
-          {canDo(save, 'groom') && !done.groom && (
-            <button
-              type="button"
-              className="home__wardrobe"
-              onClick={() => onNavigate('groom')}
-              disabled={busy !== null}
-            >
-              ✂️ 미용실 가기
-            </button>
-          )}
-        </div>
-        <span className="home__next-label">다음에 할 일</span>
-        <BigButton onClick={doNext} glow disabled={!next || busy !== null}>
-          {nextLabel ?? '오늘은 다 했어요 🌙'}
-        </BigButton>
+          );
+        })}
+        {/* 미용실은 하루 1번 보너스입니다 */}
+        {!done.groom && (
+          <button
+            type="button"
+            className="home__do"
+            onClick={() => onNavigate('groom')}
+            disabled={busy !== null}
+          >
+            {ACTION_LABEL.groom}
+          </button>
+        )}
+        {/* 병원은 아픈 날에만 보입니다. 안 데려가도 다음 날 저절로 낫습니다 (벌칙 없음). */}
+        {canDo(save, 'hospital') && (
+          <button
+            type="button"
+            className="home__do home__do--care"
+            onClick={() => onNavigate('hospital')}
+            disabled={busy !== null}
+          >
+            {ACTION_LABEL.hospital}
+          </button>
+        )}
       </footer>
 
       {/* 밥·물 먹는 애니메이션 */}

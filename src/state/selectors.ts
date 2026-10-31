@@ -1,11 +1,15 @@
 /**
- * 진행 잠금 규칙 (SPEC 5-1).
- * 3단계까지: 밥·물·옷 → 출근 → 수업 → 산책 → 씻기 → 재우기.
- * 미용실은 체크판 밖의 보너스로, 학교에 다녀오면 열립니다 (SPEC 5-1).
- * 병원도 체크판 밖이며 아픈 날에만 열립니다 (SPEC 6-8).
+ * 무엇을 할 수 있는지 판단하는 곳.
+ *
+ * **순서 잠금은 없습니다** (2026-10-31 에 뺐습니다 — 원래는 SPEC 5-1 의
+ * 밥·물·옷 → 출근 → 수업 → 산책 → 씻기 → 재우기 순서를 강제했습니다).
+ * 아이가 아무 순서로나 고릅니다. 남은 조건은 둘뿐입니다:
+ *   - 하루에 한 번 (`today.done`) — 절대 원칙 3번, 무한 반복 구멍을 막습니다
+ *   - 병원은 아픈 날에만 — 순서가 아니라 상태 조건입니다 (SPEC 6-8)
+ * 재우기를 하면 하루가 끝납니다. 순서가 아니라 "오늘은 여기까지"라는 뜻입니다.
  */
 
-import { DAY_FLOW, DOG_ORDER } from '../constants';
+import { DOG_ORDER } from '../constants';
 import type { DogId, RewardAction, SaveData } from '../types';
 
 /** 오늘 아픈 강아지 (SPEC 6-8). 어제 아팠던 표시는 새 하루에 저절로 지워집니다. */
@@ -14,51 +18,15 @@ export function sickDogs(save: SaveData): DogId[] {
 }
 
 export function canDo(save: SaveData, action: RewardAction): boolean {
-  const { done } = save.today;
-  // 하루가 끝났으면 (재우기 완료) 아무것도 할 수 없습니다.
-  if (done.sleep) return false;
-  switch (action) {
-    case 'feed':
-    case 'water':
-    case 'dress':
-      return true;
-    case 'commute':
-      return done.feed && done.water && done.dress;
-    case 'lesson':
-      return done.commute;
-    case 'walk':
-      return done.lesson;
-    // 미용실은 하루 순서에 끼지 않는 보너스입니다 — 학교에 다녀오면 언제든 열립니다.
-    case 'groom':
-      return done.lesson;
-    // 병원은 **아플 때만, 대신 하루 중 언제든** 열립니다.
-    // 아픈 강아지를 보고도 수업까지 기다리게 하면 그 자체가 불안 요소가 됩니다 (절대 원칙 4번).
-    case 'hospital':
-      return sickDogs(save).length > 0;
-    case 'wash':
-      return done.walk;
-    case 'sleep':
-      return done.wash;
-    default:
-      return false; // 2~4단계 기능
-  }
-}
-
-/** 홈에서 크게 반짝일 "다음에 할 일" */
-export function nextAction(save: SaveData): RewardAction | null {
-  for (const action of DAY_FLOW) {
-    if (!save.today.done[action] && canDo(save, action)) return action;
-  }
-  return null;
+  // 재우고 나면 오늘은 끝입니다.
+  if (save.today.done.sleep) return false;
+  // 병원만 조건이 있습니다 — 아픈 강아지가 있을 때만 열립니다.
+  if (action === 'hospital') return sickDogs(save).length > 0;
+  // 나머지는 아무 때나, 아무 순서로나. 하루 1회 제한은 reducer 가 봅니다.
+  return true;
 }
 
 /** 오늘 할 일을 다 했는지 (= 강아지들이 잠들었는지) */
 export function isDayFinished(save: SaveData): boolean {
   return save.today.done.sleep;
-}
-
-/** 아침 돌봄(밥·물·옷)을 마쳤는지 */
-export function isMorningDone(save: SaveData): boolean {
-  const { done } = save.today;
-  return done.feed && done.water && done.dress;
 }

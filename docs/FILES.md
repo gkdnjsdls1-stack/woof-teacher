@@ -48,7 +48,7 @@
 |---|---|
 | `gameReducer.ts` | **상태 변경이 전부 여기.** 보상은 `REWARD` 하나만 통과(하루 1회 보장), 새 하루 처리, 구매·업그레이드, 호감도 단계 선물 |
 | `GameContext.tsx` | reducer 를 화면에 연결, 저장, 자정·복귀 감지, 효과음 |
-| `selectors.ts` | 진행 잠금 — 지금 무엇을 할 수 있는지(`canDo`), 다음에 할 일(`nextAction`) |
+| `selectors.ts` | 지금 무엇을 할 수 있는지(`canDo`) — **순서 잠금 없음**, 재우면 하루 끝 · 병원은 아픈 날만 |
 | `economy.ts` | 코인 규칙 — 수업에서 **얼마를 받는지**(reducer 와 화면이 같은 함수), 살 수 있는지, 집을 올릴 수 있는지 |
 
 ### 화면 (`src/screens/`)
@@ -57,13 +57,13 @@
 |---|---|
 | `LoadingScreen.tsx` | S0 발자국 |
 | `NamingScreen.tsx` | S1 선물 상자 → 이름 짓기 |
-| `HomeScreen.tsx` | S2 홈 — 체크판, 하트, 밥·물그릇, "다음에 할 일" |
+| `HomeScreen.tsx` | S2 홈 — 하트, 밥·물그릇, 할 수 있는 일 버튼 전부 (순서 없음) |
 | `DressScreen.tsx` | S3 옷 입히기 (→ 옷가게 입구) |
 | `ShopScreen.tsx` | S4 옷가게 — 오늘의 새 옷, 코인으로 구매 |
 | `CommuteScreen.tsx` | S5+S6 출근 준비(목줄·입마개 드래그) → 오픈카 이동 → 도착 |
 | `LessonScreen.tsx` | S7 교실 (문제 5종 그리기) + 주말 소풍. 코인은 여기서만 생깁니다 |
 | `WalkScreen.tsx` | S8 산책 — 흐르는 공원, 꽃·나비·공 탭, 끝 지점 도착 |
-| `GroomScreen.tsx` | S9 미용실 — 가위 → 드라이어 → 커튼 "짠!" (체크판 밖 보너스) |
+| `GroomScreen.tsx` | S9 미용실 — 가위 → 드라이어 → 커튼 "짠!" (하루 1번 보너스) |
 | `WashScreen.tsx` | S11 목욕 (거품 → 헹굼 → 수건) |
 | `HouseScreen.tsx` | S12 집 업그레이드 (홈의 강아지집을 누르면 들어갑니다) |
 | `SleepScreen.tsx` | 재우기 (불 끄기) |
@@ -77,7 +77,6 @@
 |---|---|
 | `BigButton.tsx` | 큰 버튼 (56px 이상) |
 | `CelebrationOverlay.tsx` | 호감도 50·80·100 축하 연출 (큐를 하나씩 비움) |
-| `CheckBoard.tsx` | 오늘의 체크판 8칸 |
 | `HeartGauge.tsx` | 하트 게이지 |
 | `SpeechBubble.tsx` | 말풍선 ("월월" 계열만) |
 | `TopBar.tsx` | 코인 · 제목 · 음소거 · 집으로 |

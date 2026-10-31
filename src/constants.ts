@@ -241,39 +241,7 @@ export const SLOT_LABEL: Record<'head' | 'body' | 'face', string> = {
   face: '얼굴',
 };
 
-/* ───────────────────── 오늘의 체크판 (8칸) ─────────────────────
- * 3단계까지 밥·물·옷·출근·수업·산책·씻기·재우기가 모두 열려 있습니다.
- * 미용실은 체크판 밖의 보너스라 칸이 없습니다 (SPEC 5-1 ⑥).
- */
-export const CHECKBOARD: {
-  key: RewardAction;
-  label: string;
-  emoji: string;
-  stage: 1 | 2 | 3;
-}[] = [
-  { key: 'feed', label: '밥', emoji: '🍖', stage: 1 },
-  { key: 'water', label: '물', emoji: '💧', stage: 1 },
-  { key: 'dress', label: '옷', emoji: '👕', stage: 1 },
-  { key: 'commute', label: '출근', emoji: '🚗', stage: 1 },
-  { key: 'lesson', label: '수업', emoji: '🏫', stage: 1 },
-  { key: 'walk', label: '산책', emoji: '🌳', stage: 3 },
-  { key: 'wash', label: '씻기', emoji: '🛁', stage: 1 },
-  { key: 'sleep', label: '재우기', emoji: '🌙', stage: 1 },
-];
-
-/** 하루에 실제로 진행하는 순서 (진행 잠금과 "다음에 할 일"의 기준) */
-export const DAY_FLOW: RewardAction[] = [
-  'feed',
-  'water',
-  'dress',
-  'commute',
-  'lesson',
-  'walk',
-  'wash',
-  'sleep',
-];
-
-/** "다음에 할 일" 버튼 문구 (짧게, 이모지 먼저) */
+/** 홈 버튼 문구 (짧게, 이모지 먼저). 순서는 없습니다 — 아무 거나 누릅니다. */
 export const ACTION_LABEL: Partial<Record<RewardAction, string>> = {
   feed: '🍖 밥 주기',
   water: '💧 물 주기',

@@ -105,7 +105,9 @@ export function NightScreen({ justFinished }: { justFinished: boolean }) {
 
       {justFinished ? (
         <>
-          <h2 className="night__title">오늘 할 일을 다 했어요!</h2>
+          {/* 순서가 자유로워진 뒤로는 아무것도 안 하고 재울 수도 있습니다.
+              "다 했어요"는 거짓이 될 수 있어서 늘 참인 문구로 둡니다. */}
+          <h2 className="night__title">강아지들이 잠들었어요 🌙</h2>
           <ul className="night__previews">
             {previews.map((text, i) => (
               <li key={i} className="night__card">
@@ -115,7 +117,7 @@ export function NightScreen({ justFinished }: { justFinished: boolean }) {
           </ul>
         </>
       ) : (
-        <h2 className="night__title">오늘은 다 했어요. 쿨쿨 💤</h2>
+        <h2 className="night__title">강아지들이 자고 있어요. 쿨쿨 💤</h2>
       )}
 
       <p className="night__bye">내일 또 만나요 🌙</p>
