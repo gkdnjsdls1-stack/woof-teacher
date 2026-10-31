@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 
-import { Dog, Leash, Muzzle, OpenCar } from '../assets';
+import { Dog, Leash, Muzzle, OpenCar, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { TopBar } from '../components/TopBar';
 import { BARKS, COMMUTE_GEAR, DOG_ORDER, TIMING, type GearKey } from '../constants';
@@ -102,7 +102,7 @@ export function CommuteScreen({ onBack, onArrive }: { onBack: () => void; onArri
 
   if (phase === 'gear') {
     return (
-      <div className="screen commute">
+      <div className="screen commute" style={screenBg('commute')}>
         <TopBar title="출근 준비 🚗" onBack={onBack} />
         <h2 className="commute__title">목줄과 입마개를 채워요</h2>
 
@@ -189,12 +189,8 @@ export function CommuteScreen({ onBack, onArrive }: { onBack: () => void; onArri
 
   if (phase === 'drive') {
     return (
-      <div className="screen commute commute--drive">
+      <div className="screen commute commute--drive" style={screenBg('commute')}>
         <TopBar title={picnic ? '공원 가는 길 🧺' : '학교 가는 길 🚗'} />
-        <div className="road" aria-hidden="true">
-          <div className="road__line" />
-        </div>
-
         <button
           type="button"
           className="car"
@@ -219,7 +215,7 @@ export function CommuteScreen({ onBack, onArrive }: { onBack: () => void; onArri
   }
 
   return (
-    <div className="screen commute commute--arrived">
+    <div className="screen commute commute--arrived" style={screenBg(picnic ? 'walk' : 'lesson')}>
       <TopBar title={picnic ? '공원 도착 🧺' : '학교 도착 🏫'} />
       <h2 className="commute__title">{picnic ? '공원에 도착했어요!' : '학교에 도착했어요!'}</h2>
       <div className="commute__dogs">

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Dog, OUTFIT_EMOJI } from '../assets';
+import { Dog, OUTFIT_EMOJI, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { TopBar } from '../components/TopBar';
 import {
@@ -40,7 +40,7 @@ export function DressScreen({ onBack, onShop }: { onBack: () => void; onShop: ()
   }
 
   return (
-    <div className="screen dress">
+    <div className="screen dress" style={screenBg('shop', 'quiet')}>
       <TopBar title="옷 입히기 👕" onBack={onBack} />
 
       <div className="tabs" role="tablist" aria-label="강아지 고르기">

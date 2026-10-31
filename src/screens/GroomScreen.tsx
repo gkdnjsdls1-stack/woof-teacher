@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Dog } from '../assets';
+import { Dog, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { Progress } from '../components/Progress';
 import { TopBar } from '../components/TopBar';
@@ -47,7 +47,7 @@ export function GroomScreen({ onBack }: { onBack: () => void }) {
   const opened = step === 'reveal' || step === 'done';
 
   return (
-    <div className="screen groom">
+    <div className="screen groom" style={screenBg('groom')}>
       <TopBar title="미용실 ✂️" onBack={opened ? undefined : onBack} />
 
       <h2 className="groom__title">

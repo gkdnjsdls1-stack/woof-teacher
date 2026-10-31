@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 
-import { Dog, Shower, SoapBubble, Towel } from '../assets';
+import { Dog, Shower, SoapBubble, Towel, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { Progress } from '../components/Progress';
 import { TopBar } from '../components/TopBar';
@@ -95,7 +95,7 @@ export function WashScreen({ onBack }: { onBack: () => void }) {
           : '반짝반짝! ✨';
 
   return (
-    <div className="screen wash">
+    <div className="screen wash" style={screenBg('wash')}>
       <TopBar title="목욕 🛁" onBack={step === 'done' ? undefined : onBack} />
       <h2 className="wash__title">{title}</h2>
 

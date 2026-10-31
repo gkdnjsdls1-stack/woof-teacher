@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Dog, OUTFIT_EMOJI } from '../assets';
+import { Dog, OUTFIT_EMOJI, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { TopBar } from '../components/TopBar';
 import { BARKS, DOG_ORDER, DOG_PROFILE, SLOT_LABEL } from '../constants';
@@ -30,7 +30,7 @@ export function ShopScreen({ onBack }: { onBack: () => void }) {
   const items = shopOutfits(tab);
 
   return (
-    <div className="screen shop">
+    <div className="screen shop" style={screenBg('shop', 'quiet')}>
       <TopBar title="옷가게 🛍" onBack={onBack} />
 
       {todayItem && (

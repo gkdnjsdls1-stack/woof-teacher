@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { ClockFace, Dog, Student } from '../assets';
+import { ClockFace, Dog, Student, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { TopBar } from '../components/TopBar';
 import { BARKS, LESSON_LABEL, PICNIC_TAPS, STUDENT_COUNT, TIMING } from '../constants';
@@ -309,7 +309,7 @@ export function LessonScreen({ onBack }: { onBack: () => void }) {
 
   if (finished) {
     return (
-      <div className="screen lesson lesson--done">
+      <div className="screen lesson lesson--done" style={screenBg(type === 'picnic' ? 'walk' : 'lesson')}>
         <TopBar title={title} />
         <h2 className="lesson__prompt">
           {type === 'picnic' ? '소풍 끝! 🧺' : '수업 끝! 🎒'}
@@ -336,7 +336,7 @@ export function LessonScreen({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="screen lesson">
+    <div className="screen lesson" style={screenBg(lesson.type === 'picnic' ? 'walk' : 'lesson')}>
       <TopBar title={title} onBack={onBack} />
       {lesson.type === 'picnic' ? (
         <PicnicView onSolved={solve} onFinish={finish} />

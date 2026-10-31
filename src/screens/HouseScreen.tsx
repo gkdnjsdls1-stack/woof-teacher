@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Dog, DogHouse } from '../assets';
+import { Dog, DogHouse, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { TopBar } from '../components/TopBar';
 import { BARKS, DOG_ORDER } from '../constants';
@@ -31,7 +31,7 @@ export function HouseScreen({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="screen house">
+    <div className="screen house" style={screenBg('house', 'quiet')}>
       <TopBar title="강아지집 🏠" onBack={onBack} />
 
       <div className="house__list">

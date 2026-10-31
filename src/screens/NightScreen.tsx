@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Dog, MoonAndStars } from '../assets';
+import { Dog, MoonAndStars, screenBg } from '../assets';
 import { SpeechBubble } from '../components/SpeechBubble';
 import {
   BARKS,
@@ -70,7 +70,7 @@ export function NightScreen({ justFinished }: { justFinished: boolean }) {
   }
 
   return (
-    <div className="screen night">
+    <div className="screen night" style={screenBg('night', 'dark')}>
       <button
         type="button"
         className="night__mute"

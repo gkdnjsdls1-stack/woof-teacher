@@ -52,11 +52,12 @@ http://localhost:5173/?debugDate=2026-10-21
 src/
   constants.ts     ★ 모든 수치(호감도·코인·가격·확률·연출 시간)를 여기 한 곳에 모았습니다
   types.ts         데이터 모델 (SPEC 10번과 동일)
-  assets/          그림 — SVG/CSS 플레이스홀더 (나중에 실제 그림으로 교체)
-    Dog.tsx          강아지 2종 × 표정 5개 + 꼬리 흔들기
-    Outfits.tsx      옷 레이어 10벌
-    Props.tsx        사료 그릇, 물그릇, 집 4단계, 선물 상자, 샤워기, 수건, 거품, 발자국, 달
-    geometry.ts      옷을 붙이는 좌표 기준점
+  assets/          그림 입구 (그림 파일은 public/art/ 에 있습니다)
+    art.ts           그림 주소 art() · 화면 배경 screenBg() — 경로는 여기서만
+    Dog.tsx          강아지 그림 + 옷·목줄·입마개·왕관 겹치기
+    geometry.ts    ★ 자리 수치 전부 (강아지 그림 가로·세로의 %)
+    Outfits.tsx      목록용 이모지
+    Props.tsx        소품 11개 <img> + SVG 로 남은 집 4단계·시계·학생
     palette.ts       색상
   components/      하트 게이지, 체크판, 상단 바, 말풍선, 큰 버튼
   screens/         S0 로딩 / S1 이름 짓기 / S2 홈 / S3 옷 입히기 / S11 목욕 / 재우기 / S13 밤·내일 예고
@@ -67,12 +68,14 @@ src/
   data/
     words.ts         그림-낱말 44쌍 (2~3글자)
 public/            빌드 결과물 루트로 그대로 복사됩니다
+  art/               그림 45장 (dog 10 · outfit 12 · bg 10 · prop 13, WebP 1.3MB)
   icon.svg           홈 화면 아이콘 (원본)
   icon-192.png       같은 그림의 PNG — 아이폰은 PNG 만 받습니다
   icon-512.png
   manifest.webmanifest  PWA 설정 (월월 선생님 / 월월)
   sw.js              서비스 워커 — 오프라인 캐시 (빌드에서만 등록)
 tools/             앱에 들어가지 않는 보조 도구 (아이콘 PNG 만들기)
+scripts/           import-art.py — 받은 원본을 public/art/ 로 다듬어 넣습니다
 ```
 
 ## 1단계에서 구현한 하루 흐름
@@ -95,6 +98,6 @@ tools/             앱에 들어가지 않는 보조 도구 (아이콘 PNG 만�
 
 ## 아이에게 물어볼 것 [TBD]
 
-1. 옷 목록 — 멋진 옷 5벌 / 예쁜 옷 5벌 (지금은 명세의 임시 예시)
+1. ~~옷 목록~~ → 확정 (2026-10-21)
 2. 추천 이름 4개를 그대로 쓸지
-3. 실제 그림을 그릴지, 플레이스홀더 아트로 계속 갈지
+3. ~~실제 그림을 그릴지~~ → AI 그림 45장으로 교체 완료 (2026-10-31, [docs/ART.md](docs/ART.md))

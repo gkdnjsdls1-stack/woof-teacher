@@ -103,7 +103,7 @@ export function NamingScreen({ onDone }: { onDone: () => void }) {
             disabled={index !== 0}
             aria-label="첫 번째 선물 상자 열기"
           >
-            <GiftBox size={132} color="#9FC6F0" />
+            <GiftBox size={132} />
             <span className="gift__bark">{index === 0 ? '월월!' : '✅'}</span>
           </button>
           <button
@@ -113,7 +113,7 @@ export function NamingScreen({ onDone }: { onDone: () => void }) {
             disabled={index !== 1}
             aria-label="두 번째 선물 상자 열기"
           >
-            <GiftBox size={132} color="#F5A3BD" />
+            <GiftBox size={132} />
             {index === 1 && <span className="gift__bark">월월!</span>}
           </button>
         </div>

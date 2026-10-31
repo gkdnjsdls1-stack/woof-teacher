@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Dog } from '../assets';
+import { Dog, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { Progress } from '../components/Progress';
 import { TopBar } from '../components/TopBar';
@@ -52,7 +52,7 @@ export function WalkScreen({ onBack }: { onBack: () => void }) {
   const walking = phase === 'walk';
 
   return (
-    <div className="screen walk">
+    <div className="screen walk" style={screenBg('walk')}>
       <TopBar title="산책 🌳" onBack={phase === 'done' ? undefined : onBack} />
 
       <div

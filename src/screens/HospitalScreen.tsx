@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Dog } from '../assets';
+import { Dog, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { Progress } from '../components/Progress';
 import { TopBar } from '../components/TopBar';
@@ -36,7 +36,7 @@ export function HospitalScreen({ onBack }: { onBack: () => void }) {
   const names = patients.map((id) => save.dogs[id].name).join('와 ');
 
   return (
-    <div className="screen hospital">
+    <div className="screen hospital" style={screenBg('hospital')}>
       <TopBar title="병원 🏥" onBack={done ? undefined : onBack} />
 
       <h2 className="hospital__title">{done ? '다 나았어요! ✨' : current.title}</h2>

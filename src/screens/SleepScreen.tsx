@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Dog, MoonAndStars } from '../assets';
+import { Dog, MoonAndStars, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { TopBar } from '../components/TopBar';
 import { BARKS, TIMING } from '../constants';
@@ -36,7 +36,10 @@ export function SleepScreen({
   }
 
   return (
-    <div className={lightsOut ? 'screen sleep sleep--dark' : 'screen sleep'}>
+    <div
+      className={lightsOut ? 'screen sleep sleep--dark' : 'screen sleep'}
+      style={lightsOut ? undefined : screenBg('night', 'dark')}
+    >
       {!lightsOut && <TopBar title="재우기 🌙" onBack={onBack} />}
 
       <div className="sleep__sky">

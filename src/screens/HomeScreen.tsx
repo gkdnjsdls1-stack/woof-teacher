@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Dog, DogHouse, FoodBowl, WaterBowl } from '../assets';
+import { Dog, DogHouse, FoodBowl, WaterBowl, screenBg } from '../assets';
 import { BigButton } from '../components/BigButton';
 import { CheckBoard } from '../components/CheckBoard';
 import { HeartGauge } from '../components/HeartGauge';
@@ -104,7 +104,7 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
   const baseMood: DogMood = !done.feed ? 'hungry' : done.wash ? 'sleepy' : 'happy';
 
   return (
-    <div className="screen home">
+    <div className="screen home" style={screenBg('home')}>
       <TopBar onSettings={() => onNavigate('settings')} />
       <CheckBoard done={done} />
 
