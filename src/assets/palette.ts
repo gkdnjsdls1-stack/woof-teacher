@@ -8,10 +8,17 @@ export const PALETTE = {
   dxDark: '#A86734',
   dxSnout: '#DFA873',
   dxEar: '#8E5526',
+  dxLine: '#7A4A20', // 바깥 윤곽선
+  dxShade: '#B5743C', // 뒤쪽 다리·배 그늘
   // 푸들
   pdBody: '#F7E7D1',
   pdDark: '#E4CEAE',
   pdSnout: '#FDF6EB',
+  pdLine: '#C2A77F', // 바깥 윤곽선 (너무 진하면 흰 털이 탁해집니다)
+  pdShade: '#EADCC4', // 뒤쪽 다리·배 그늘
+  // 공통
+  shadow: '#C9A98C', // 바닥 그림자
+  shine: '#FFFFFF', // 눈 반짝임
   // 공통 얼굴
   nose: '#3C2B22',
   eye: '#3C2B22',

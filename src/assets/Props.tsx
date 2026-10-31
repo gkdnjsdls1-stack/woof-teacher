@@ -42,6 +42,9 @@ export function WaterBowl({ filled = true, size = 76 }: { filled?: boolean; size
 /* ───────────────────────── 강아지집 (4단계) ───────────────────────── */
 
 export function DogHouse({ level = 0, size = 90 }: { level?: 0 | 1 | 2 | 3; size?: number }) {
+  // 강아지와 같은 그림체를 쓰려고 바깥 윤곽선과 바닥 그림자를 함께 넣습니다.
+  const line = '#8A6A47';
+  const ink = { stroke: line, strokeWidth: 3, strokeLinejoin: 'round' as const };
   return (
     <svg
       viewBox="0 0 100 100"
@@ -50,42 +53,56 @@ export function DogHouse({ level = 0, size = 90 }: { level?: 0 | 1 | 2 | 3; size
       role="img"
       aria-label={`${HOUSE_LEVEL_NAMES[level]}`}
     >
+      <ellipse cx={50} cy={94} rx={34} ry={5} fill={PALETTE.shadow} opacity={0.25} />
+
       {level === 0 && (
-        <g>
+        <g {...ink}>
+          {/* 박스집 — 테이프와 접힌 뚜껑으로 '종이 상자'인 걸 알아보게 합니다 */}
           <rect x={18} y={48} width={64} height={44} rx={4} fill={PALETTE.box} />
-          <path d="M18,48 h64 l-6,-8 h-52 z" fill="#C4A478" />
-          <ellipse cx={50} cy={92} rx={20} ry={6} fill="#00000014" />
-          <circle cx={50} cy={72} r={13} fill="#A98862" />
+          <path d="M18,48 h64 l-6,-9 h-52 z" fill="#C4A478" />
+          {/* 접힌 자국은 문 위에서 끝냅니다 (문을 가로지르면 금 간 것처럼 보입니다) */}
+          <path d="M50,48 v10" stroke="#B89A72" strokeWidth={2} />
+          <path d="M28,58 h20" stroke="#E6D3B4" strokeWidth={4} strokeLinecap="round" />
+          <circle cx={50} cy={74} r={13} fill="#8E7254" />
         </g>
       )}
+
       {level === 1 && (
-        <g>
+        <g {...ink}>
+          {/* 나무집 — 판자 결을 그어 나무로 보이게 */}
           <rect x={16} y={50} width={68} height={42} rx={4} fill={PALETTE.wood} />
-          <path d="M50,24 L90,52 H10 Z" fill={PALETTE.roof} />
+          <path d="M22,58 h56 M22,68 h56 M22,78 h56" stroke={PALETTE.woodDark} strokeWidth={1.6} opacity={0.5} />
+          <path d="M50,22 L92,52 H8 Z" fill={PALETTE.roof} />
           <circle cx={50} cy={74} r={14} fill={PALETTE.woodDark} />
-          <rect x={46} y={40} width={8} height={8} rx={2} fill="#FFF3C4" />
+          <rect x={45} y={36} width={10} height={10} rx={2} fill="#FFF3C4" />
         </g>
       )}
+
       {level === 2 && (
-        <g>
+        <g {...ink}>
+          {/* 2층 집 — 아래층·위층·지붕을 또렷이 나눕니다 */}
           <rect x={16} y={56} width={68} height={36} rx={4} fill={PALETTE.wood} />
           <rect x={22} y={30} width={56} height={26} rx={4} fill="#DCB68A" />
-          <path d="M50,10 L86,32 H14 Z" fill={PALETTE.roof} />
+          <path d="M50,8 L88,32 H12 Z" fill={PALETTE.roof} />
           <circle cx={50} cy={76} r={12} fill={PALETTE.woodDark} />
-          <rect x={32} y={38} width={10} height={10} rx={2} fill="#FFF3C4" />
-          <rect x={58} y={38} width={10} height={10} rx={2} fill="#FFF3C4" />
+          <rect x={31} y={37} width={11} height={11} rx={2} fill="#FFF3C4" />
+          <rect x={58} y={37} width={11} height={11} rx={2} fill="#FFF3C4" />
+          <path d="M36.5,37 v11 M31,42.5 h11 M63.5,37 v11 M58,42.5 h11" stroke={line} strokeWidth={1.4} />
         </g>
       )}
+
       {level === 3 && (
-        <g>
+        <g stroke="#7E63AE" strokeWidth={3} strokeLinejoin="round">
+          {/* 성 — 톱니 성벽과 깃발로 '성'인 걸 한눈에 */}
           <rect x={14} y={48} width={72} height={44} rx={3} fill="#E8E2F2" />
-          <rect x={10} y={34} width={16} height={58} rx={3} fill="#D8D0EA" />
-          <rect x={74} y={34} width={16} height={58} rx={3} fill="#D8D0EA" />
-          <path d="M18,34 L26,18 L34,34 Z" fill="#9A7FD1" />
-          <path d="M66,34 L74,18 L82,34 Z" fill="#9A7FD1" />
-          <path d="M34,48 L50,26 L66,48 Z" fill="#9A7FD1" />
+          <rect x={8} y={34} width={17} height={58} rx={3} fill="#D8D0EA" />
+          <rect x={75} y={34} width={17} height={58} rx={3} fill="#D8D0EA" />
+          <path d="M8,34 h17 v-6 h-5 v-4 h-7 v4 h-5 z" fill="#D8D0EA" />
+          <path d="M75,34 h17 v-6 h-5 v-4 h-7 v4 h-5 z" fill="#D8D0EA" />
+          <path d="M34,48 L50,24 L66,48 Z" fill="#9A7FD1" />
           <path d="M38,92 v-22 a12,12 0 0 1 24,0 v22 z" fill="#8E6FC4" />
-          <circle cx={50} cy={40} r={3} fill={PALETTE.star} />
+          <path d="M50,24 v-12" strokeWidth={2} />
+          <path d="M50,12 l12,4 l-12,4 z" fill={PALETTE.star} strokeWidth={1.5} />
         </g>
       )}
     </svg>
