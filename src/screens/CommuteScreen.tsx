@@ -141,24 +141,31 @@ export function CommuteScreen({ onBack, onArrive }: { onBack: () => void; onArri
         </div>
 
         <div className="commute__tray" aria-label="출근 준비물">
-          {COMMUTE_GEAR.map((gear) => (
-            <button
-              key={gear.key}
-              type="button"
-              className="tray-item"
-              onPointerDown={startDrag(gear.key)}
-              onPointerMove={moveDrag}
-              onPointerUp={endDrag}
-              onPointerCancel={() => {
-                dragging.current = null;
-                setDrag(null);
-              }}
-              aria-label={`${gear.label} 채우기`}
-            >
-              <GearIcon gear={gear.key} size={52} />
-              <span className="tray-item__label">{gear.label}</span>
-            </button>
-          ))}
+          {COMMUTE_GEAR.map((gear) => {
+            // 둘 다 채운 준비물은 꺼둡니다 — 눌러도 아무 일이 없으면 아이가 고장으로 봅니다.
+            const allOn = DOG_ORDER.every((id) => worn[id][gear.key]);
+            return (
+              <button
+                key={gear.key}
+                type="button"
+                className={allOn ? 'tray-item tray-item--done' : 'tray-item'}
+                disabled={allOn}
+                onPointerDown={startDrag(gear.key)}
+                onPointerMove={moveDrag}
+                onPointerUp={endDrag}
+                onPointerCancel={() => {
+                  dragging.current = null;
+                  setDrag(null);
+                }}
+                aria-label={allOn ? `${gear.label} 다 채웠어요` : `${gear.label} 채우기`}
+              >
+                <GearIcon gear={gear.key} size={52} />
+                <span className="tray-item__label">
+                  {gear.label} {allOn ? '✅' : ''}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* 탭해도 채워지므로(dropAt 참고) 안내에 두 가지를 모두 적습니다. 다 채우면 안내를 치웁니다. */}

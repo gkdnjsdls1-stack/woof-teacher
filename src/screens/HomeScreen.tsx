@@ -9,6 +9,8 @@ import {
   ACTION_LABEL,
   BARKS,
   DOG_ORDER,
+  DRESS_AGAIN_LABEL,
+  HOUSE_ACTION_LABEL,
   HOUSE_ENABLED,
   MILESTONE_CROWN,
   MILESTONE_TAIL_WAG,
@@ -17,7 +19,7 @@ import {
 } from '../constants';
 import { pickRandom } from '../lib/random';
 import { useGame } from '../state/GameContext';
-import { canDo, sickDogs } from '../state/selectors';
+import { canDo, onlySleepLeft, sickDogs } from '../state/selectors';
 import type { DogId, DogMood } from '../types';
 
 export type HomeTarget =
@@ -34,9 +36,17 @@ export type HomeTarget =
 
 /**
  * 홈에 깔리는 버튼. **순서가 없습니다** — 아무 거나 아무 때나 누릅니다.
- * 밥·물은 그릇으로 따로 주므로 여기 없고, 미용실·병원은 조건이 있어 아래에서 붙입니다.
+ * 밥·물은 그릇으로 따로 주므로 여기 없고, 병원은 아픈 날에만 아래에서 붙입니다.
+ * 재우기는 하루를 끝내므로 맨 마지막에 둡니다.
  */
-const HOME_ACTIONS = ['dress', 'commute', 'lesson', 'walk', 'wash', 'sleep'] as const;
+const HOME_ACTIONS = ['dress', 'commute', 'lesson', 'walk', 'groom', 'wash', 'sleep'] as const;
+
+/**
+ * 끝낸 뒤에도 다시 들어갈 수 있는 행동.
+ * 옷 입히기는 **옷가게로 가는 유일한 길**이라 꺼버리면 그날 번 코인을 쓸 데가 없어집니다.
+ * 보상은 reducer 가 이미 하루 1회로 막으므로 다시 들어가도 호감도는 오르지 않습니다.
+ */
+const REOPENABLE: readonly string[] = ['dress'];
 
 /** S2 — 홈(강아지집). 오늘 할 수 있는 일을 전부 버튼으로 깔아둡니다. */
 export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) => void }) {
@@ -72,7 +82,7 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
       ? BARKS.sick
       : !done.feed
         ? BARKS.hungry
-        : done.wash
+        : onlySleepLeft(save)
           ? BARKS.sleepy
           : BARKS.happy;
     showBubble(dogId, pickRandom(lines));
@@ -95,7 +105,9 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
     }, TIMING.eating);
   }
 
-  const baseMood: DogMood = !done.feed ? 'hungry' : done.wash ? 'sleepy' : 'happy';
+  // 순서가 자유로워진 뒤로는 목욕이 하루의 끝이 아닙니다 —
+  // 아침에 씻기면 남은 하루 내내 졸린 얼굴이 되므로 "재우기만 남았을 때"로 봅니다.
+  const baseMood: DogMood = !done.feed ? 'hungry' : onlySleepLeft(save) ? 'sleepy' : 'happy';
 
   return (
     <div className="screen home" style={screenBg('home')}>
@@ -108,15 +120,12 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
             <div className="dog-slot" key={id}>
               <HeartGauge name={dog.name} hearts={dog.hearts} />
               <div className="dog-slot__stage">
+                {/* 방 안 장식입니다. 강아지 그림에 가려 누를 수 없으므로
+                    집 꾸미기는 아래 버튼 줄의 `강아지집` 으로 들어갑니다. */}
                 {HOUSE_ENABLED && (
-                  <button
-                    type="button"
-                    className="dog-slot__house"
-                    onClick={() => onNavigate('house')}
-                    aria-label={`${dog.name}의 집 꾸미기`}
-                  >
+                  <span className="dog-slot__house" aria-hidden="true">
                     <DogHouse level={dog.houseLevel} size={62} />
-                  </button>
+                  </span>
                 )}
                 <button
                   type="button"
@@ -173,27 +182,28 @@ export function HomeScreen({ onNavigate }: { onNavigate: (target: HomeTarget) =>
           // 주말에는 수업 대신 소풍입니다 — 없는 기능을 예고하지 않으려고 문구만 바꿉니다.
           const label = key === 'lesson' && picnic ? PICNIC_ACTION_LABEL : ACTION_LABEL[key];
           const finished = done[key];
+          const reopen = finished && REOPENABLE.includes(key);
           return (
             <button
               key={key}
               type="button"
-              className={finished ? 'home__do home__do--done' : 'home__do'}
+              className={finished && !reopen ? 'home__do home__do--done' : 'home__do'}
               onClick={() => onNavigate(key)}
-              disabled={finished || busy !== null}
+              disabled={(finished && !reopen) || busy !== null}
             >
-              {finished ? `${label} ✅` : label}
+              {reopen ? DRESS_AGAIN_LABEL : finished ? `${label} ✅` : label}
             </button>
           );
         })}
-        {/* 미용실은 하루 1번 보너스입니다 */}
-        {!done.groom && (
+        {/* 강아지집은 코인을 쓰는 곳이라 하루 제한이 없습니다 (끝나는 행동이 아닙니다). */}
+        {HOUSE_ENABLED && (
           <button
             type="button"
             className="home__do"
-            onClick={() => onNavigate('groom')}
+            onClick={() => onNavigate('house')}
             disabled={busy !== null}
           >
-            {ACTION_LABEL.groom}
+            {HOUSE_ACTION_LABEL}
           </button>
         )}
         {/* 병원은 아픈 날에만 보입니다. 안 데려가도 다음 날 저절로 낫습니다 (벌칙 없음). */}

@@ -48,7 +48,7 @@
 |---|---|
 | `gameReducer.ts` | **상태 변경이 전부 여기.** 보상은 `REWARD` 하나만 통과(하루 1회 보장), 새 하루 처리, 구매·업그레이드, 호감도 단계 선물 |
 | `GameContext.tsx` | reducer 를 화면에 연결, 저장, 자정·복귀 감지, 효과음 |
-| `selectors.ts` | 지금 무엇을 할 수 있는지(`canDo`) — **순서 잠금 없음**, 재우면 하루 끝 · 병원은 아픈 날만 |
+| `selectors.ts` | 지금 무엇을 할 수 있는지(`canDo`) — **순서 잠금 없음**, 재우면 하루 끝 · 병원은 아픈 날만. 졸린 표정 기준(`onlySleepLeft`) |
 | `economy.ts` | 코인 규칙 — 수업에서 **얼마를 받는지**(reducer 와 화면이 같은 함수), 살 수 있는지, 집을 올릴 수 있는지 |
 
 ### 화면 (`src/screens/`)
@@ -65,7 +65,7 @@
 | `WalkScreen.tsx` | S8 산책 — 흐르는 공원, 꽃·나비·공 탭, 끝 지점 도착 |
 | `GroomScreen.tsx` | S9 미용실 — 가위 → 드라이어 → 커튼 "짠!" (하루 1번 보너스) |
 | `WashScreen.tsx` | S11 목욕 (거품 → 헹굼 → 수건) |
-| `HouseScreen.tsx` | S12 집 업그레이드 (홈의 강아지집을 누르면 들어갑니다) |
+| `HouseScreen.tsx` | S12 집 업그레이드 (홈의 `🏠 강아지집` 버튼으로 들어갑니다) |
 | `SleepScreen.tsx` | 재우기 (불 끄기) |
 | `HospitalScreen.tsx` | S10 병원 — 청진기 → 약 젤리 → 반창고 (아픈 날에만) |
 | `SettingsScreen.tsx` | S14 보호자 설정 (숨김) — 톱니바퀴 3초 + 덧셈 관문 |

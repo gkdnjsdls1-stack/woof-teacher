@@ -77,13 +77,17 @@ export function GroomScreen({ onBack }: { onBack: () => void }) {
             sparkle={step === 'done'}
           />
         </div>
-        <div
-          className={opened ? 'groom__curtain groom__curtain--open' : 'groom__curtain'}
-          aria-hidden="true"
-        >
-          <span className="groom__curtain-left" />
-          <span className="groom__curtain-right" />
-        </div>
+        {/* 커튼은 **마지막 "짠!" 순간에만** 칩니다.
+            손질하는 내내 쳐 두면 아이가 안 보이는 강아지를 13번 두드리게 됩니다. */}
+        {opened && (
+          <div
+            className={step === 'done' ? 'groom__curtain groom__curtain--open' : 'groom__curtain'}
+            aria-hidden="true"
+          >
+            <span className="groom__curtain-left" />
+            <span className="groom__curtain-right" />
+          </div>
+        )}
         {step === 'done' && <p className="park__bark">{BARKS.celebrate[0]}</p>}
       </div>
 

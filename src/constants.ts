@@ -258,6 +258,11 @@ export const ACTION_LABEL: Partial<Record<RewardAction, string>> = {
 /** 주말에는 수업 대신 소풍입니다 (`today.lesson.type === 'picnic'`) */
 export const PICNIC_ACTION_LABEL = '🧺 소풍 가기';
 
+/** 옷 입히기를 이미 끝낸 날의 문구 — 다시 들어가 갈아입히고 옷가게에 갈 수 있습니다. */
+export const DRESS_AGAIN_LABEL = '👕 옷 갈아입히기';
+/** 강아지집(코인 쓰는 곳)은 보상 행동이 아니라 하루 제한이 없습니다 — 3단계부터 */
+export const HOUSE_ACTION_LABEL = '🏠 강아지집';
+
 /* ───────────────────── 출근 준비 (2단계) ─────────────────────
  * 강아지마다 목줄과 입마개를 모두 채워야 출발 버튼이 켜집니다 (SPEC 6-9).
  */

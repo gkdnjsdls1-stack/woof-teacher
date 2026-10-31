@@ -26,6 +26,19 @@ export function canDo(save: SaveData, action: RewardAction): boolean {
   return true;
 }
 
+/**
+ * 이제 남은 일이 재우기뿐인지.
+ * 표정·말풍선이 "졸려요"로 바뀌는 기준입니다 — 순서가 자유로워진 뒤로는
+ * 목욕이 하루의 끝이 아니라서, 아침에 씻기면 종일 졸린 얼굴이 되곤 했습니다.
+ * 병원은 아픈 날에만 생기는 일이라 세지 않습니다.
+ */
+export function onlySleepLeft(save: SaveData): boolean {
+  const done = save.today.done;
+  return (Object.keys(done) as RewardAction[])
+    .filter((key) => key !== 'sleep' && key !== 'hospital')
+    .every((key) => done[key]);
+}
+
 /** 오늘 할 일을 다 했는지 (= 강아지들이 잠들었는지) */
 export function isDayFinished(save: SaveData): boolean {
   return save.today.done.sleep;
