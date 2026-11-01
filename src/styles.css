@@ -426,44 +426,96 @@ h3 {
 
 /* ───────────────────────── 홈 ───────────────────────── */
 
-/* 강아지는 배경 그림(방) 위에 바로 섭니다 — 네모 카드를 씌우지 않습니다.
-   아래로 붙여야 벽이 아니라 바닥에 선 것처럼 보입니다. */
-.home__scene {
-  flex: 1;
-  min-height: 213px;
-  align-items: flex-end;
+/* 하트 게이지는 방 위쪽(벽·창문 자리)에 겹쳐 둡니다 — 강아지를 따라다니면 글씨가
+   춤추고, 한 줄을 따로 내주면 짧은 화면에서 버튼 줄이 화면 밖으로 밀립니다. */
+.home__hearts {
+  position: absolute;
+  inset: 0 4px auto;
   display: flex;
-  gap: 6px;
-  padding: 10px 4px 0;
+  gap: 10px;
 }
 
-.dog-slot {
+.home__hearts .heart-gauge {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   min-width: 0;
 }
 
-.dog-slot__stage {
+/* 방 하나를 두 마리가 같이 씁니다. 강아지는 배경 그림(방) 위에 바로 섭니다 —
+   네모 카드를 씌우지 않습니다. 아래로 붙여야 벽이 아니라 바닥에 선 것처럼 보입니다. */
+.home__scene {
   position: relative;
-  width: 100%;
-  display: grid;
-  place-items: center;
-  padding-bottom: 4px;
+  flex: 1;
+  min-height: 176px;
+  padding: 10px 4px 0;
 }
 
 /* 집은 3단계(업그레이드)부터 그립니다 — HOUSE_ENABLED 참고.
-   강아지와 겹치지 않도록 뒤쪽 구석에 작게 깔아둡니다. */
-.dog-slot__house {
+   방 양쪽 구석에 깔아 둔 장식이라 강아지가 그 앞을 지나갑니다. */
+.home__decor {
   position: absolute;
-  bottom: 0;
-  right: -2px;
-  z-index: 0;
+  inset: auto 4px 0;
+  display: flex;
+  justify-content: space-between;
   opacity: 0.55;
+  pointer-events: none;
 }
 
-.dog-slot__dog {
+/* ── 강아지가 방을 오갑니다 (연출뿐, 보상 없음 — constants.ts 의 STROLL) ──
+   한 겹에 한 가지 움직임만 둡니다. 같은 요소에 transform 애니메이션을 겹치면
+   뒤의 것이 앞의 것을 덮어씁니다:
+     .home__walker    → 좌우로 걷기
+     .home__dog       → (탭 눌림 효과)
+     .dog-art         → 위아래 들썩임
+     .dog-art__body   → 가는 방향으로 몸 뒤집기
+     .dog-art__dog    → 꼬리 흔들기 (호감도 50부터, 이미 있던 것) */
+.home__walker {
+  position: absolute;
+  bottom: 0;
+  animation: dog-stroll var(--leg) ease-in-out infinite alternate;
+}
+
+.home__walker .dog-art {
+  animation: dog-bob var(--bob-ms) ease-in-out infinite alternate;
+}
+
+/* 돌아올 때는 몸을 뒤집습니다 — 안 뒤집으면 뒷걸음으로 보입니다.
+   한 바퀴(왕복)가 걷기의 두 배라서 정확히 반환점에서 뒤집힙니다. */
+.home__walker .dog-art__body {
+  animation: dog-face calc(var(--leg) * 2) linear infinite;
+  animation-delay: var(--face-delay);
+}
+
+/* 밥·물을 먹는 동안에는 멈춰 섭니다 */
+.home__walker--still,
+.home__walker--still .dog-art,
+.home__walker--still .dog-art__body {
+  animation-play-state: paused;
+}
+
+@keyframes dog-stroll {
+  to {
+    transform: translateX(var(--walk));
+  }
+}
+
+@keyframes dog-bob {
+  to {
+    transform: translateY(calc(var(--bob) * -1));
+  }
+}
+
+@keyframes dog-face {
+  0%,
+  49.9% {
+    transform: scaleX(1);
+  }
+  50%,
+  100% {
+    transform: scaleX(-1);
+  }
+}
+
+.home__dog {
   background: none;
   border: none;
   padding: 0;
@@ -471,8 +523,18 @@ h3 {
   z-index: 1;
 }
 
-.dog-slot__dog:active {
-  transform: scale(0.97);
+.home__dog:active {
+  opacity: 0.85;
+}
+
+/* 끌고 있는 먹이 — 손가락을 따라다닙니다 (출근 준비의 준비물과 같은 모양) */
+.home__ghost {
+  position: fixed;
+  z-index: 60;
+  transform: translate(-50%, -50%);
+  font-size: 54px;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.25));
 }
 
 .home__bowls {
@@ -481,17 +543,60 @@ h3 {
   gap: 10px;
 }
 
+/* 밥·물은 **직접 부어서** 줍니다 — 사료·물을 집어 그릇에 끌어다 놓습니다.
+   한 칸 안에 [집는 것] + [그릇] 이 나란히 있어 어디로 가져갈지가 한눈에 보입니다. */
 .bowl {
   flex: 1;
   min-height: var(--tap);
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
-  gap: 2px;
-  padding: 8px;
+  gap: 2px 4px;
+  padding: 8px 6px;
   border-radius: var(--radius);
   border: 3px solid var(--line);
   background: #fff;
+}
+
+.bowl__scoop {
+  min-width: var(--tap);
+  min-height: var(--tap);
+  border: 3px dashed var(--pink);
+  border-radius: 16px;
+  background: #fff7fa;
+  padding: 2px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  touch-action: none;
+}
+
+.bowl__scoop:active {
+  transform: scale(0.95);
+}
+
+.bowl__scoop-emoji {
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+.bowl__scoop-label {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.bowl__arrow {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--pink-dark);
+}
+
+.bowl__label {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 800;
 }
 
 /* 끝난 그릇은 자리를 적게 차지하도록 물러납니다 — "할 일이 없어지게 한다"(SPEC 1번). */
@@ -509,33 +614,37 @@ h3 {
   height: auto;
 }
 
-.bowl__label {
-  font-size: 18px;
-  font-weight: 800;
-}
-
 /* 세로가 짧은 폰(667px — 아이폰 SE·8)에서는 버튼 줄이 화면 밖으로 밀립니다.
    글씨 18px·탭 56px 은 못 줄이므로(초2 눈높이) 강아지 그림과 그릇 쪽을 줄입니다.
    `!important` 는 `Dog` 가 size 를 인라인 style 로 넣기 때문이고,
    `height:auto` 는 geometry.ts 의 비율을 그대로 따르게 두려는 것입니다. */
 @media (max-height: 740px) {
-  .home__scene .dog-art {
+  .home__walker .dog-art {
     width: 112px !important;
     height: auto !important;
   }
 
   .home__scene {
-    min-height: 0;
+    min-height: 150px;
   }
 
   .home__bowls .bowl {
     padding: 4px;
   }
 
-  .home__bowls img,
-  .home__bowls svg {
+  .home__bowls .bowl > img,
+  .home__bowls .bowl > svg {
     width: 48px;
     height: auto;
+  }
+
+  /* 덩어리 사이 간격도 한 번씩 줄입니다 (아픈 날 9번째 버튼 자리) */
+  .screen.home {
+    gap: 6px;
+  }
+
+  .home__actions {
+    gap: 6px;
   }
 
   /* 옷 입히기도 같은 이유로 미리보기를 줄입니다 — 고를 칸이 한 줄밖에 안 남습니다. */
@@ -1888,11 +1997,7 @@ h3 {
 
 /* ───────────────── 홈의 보너스 버튼 줄 ───────────────── */
 
-/* 방 안 장식입니다 — 강아지 그림에 가려 누를 수 없어서,
-   집 꾸미기는 아래 버튼 줄의 `🏠 강아지집` 으로 들어갑니다. */
-.dog-slot__house {
-  pointer-events: none;
-}
+/* (집 장식 규칙은 위 `.home__decor` 로 옮겼습니다 — 홈 구조가 한 무대로 바뀌었습니다.) */
 
 /* ═══════════════════ 4단계 — 병원 · 보호자 설정 ═══════════════════ */
 
@@ -1953,7 +2058,7 @@ h3 {
 }
 
 /* 아픈 강아지 옆 콧물 */
-.dog-slot__sick {
+.home__sick {
   position: absolute;
   top: 6px;
   right: 8px;

@@ -17,7 +17,7 @@ SPEC 12번 **4단계(병원·보호자 설정)까지 구현을 마쳤고, 2026-1
 |---|---|---|
 | S0 로딩 | [src/screens/LoadingScreen.tsx](src/screens/LoadingScreen.tsx) | 발자국 애니메이션 0.9초 |
 | S1 이름 짓기 | [src/screens/NamingScreen.tsx](src/screens/NamingScreen.tsx) | 선물 상자 2개 → 추천 이름 4개 / 직접 입력(1~6글자) |
-| S2 홈 | [src/screens/HomeScreen.tsx](src/screens/HomeScreen.tsx) | 하트 게이지, 집, 밥·물그릇, 쓰다듬기(보상 없음), **할 수 있는 일 버튼 전부**(순서 없음) |
+| S2 홈 | [src/screens/HomeScreen.tsx](src/screens/HomeScreen.tsx) | **돌아다니는 강아지 두 마리**, 하트 게이지, 집, **그릇에 부어 주는 밥·물**, 쓰다듬기(보상 없음), **할 수 있는 일 버튼 전부**(순서 없음) |
 | S3 옷 입히기 | [src/screens/DressScreen.tsx](src/screens/DressScreen.tsx) | 슬롯 머리/몸/얼굴, 무료 1벌, 나머지는 가격표(3단계부터 옷가게로) |
 | S11 목욕 | [src/screens/WashScreen.tsx](src/screens/WashScreen.tsx) | 거품 → 헹구기 → 수건 → 반짝 |
 | 재우기 | [src/screens/SleepScreen.tsx](src/screens/SleepScreen.tsx) | 불 끄기 → "쿨쿨 💤" |
@@ -128,6 +128,24 @@ SPEC 12번 **4단계(병원·보호자 설정)까지 구현을 마쳤고, 2026-1
 - 아침에 씻기면 **하루 종일 졸린 표정**이었다 → "재우기만 남았을 때"로 (`onlySleepLeft`).
 - 미용실 버튼만 끝나면 사라졌다 → 다른 버튼처럼 ✅.
 - "나무집으 / 로" 처럼 낱말이 잘렸다 → `word-break: keep-all` 을 body 로.
+
+## 아이 피드백 반영 (2026-11-01)
+
+아이 말 두 가지를 홈 화면에 넣었습니다 ([docs/DECISIONS.md](docs/DECISIONS.md) 116~124번).
+
+**"강아지들이 왜 안 돌아다녀?"**
+- 강아지마다 하나씩 쓰던 **칸을 없애고 방 하나를 같이 쓰게** 했습니다. 두 마리가 좌우로 오가며 서로를 지나칩니다.
+- 돌아올 때는 몸을 뒤집습니다(뒷걸음 방지). 옷·왕관도 같이 뒤집힙니다.
+- 왕복 시간이 서로 다릅니다(닥스 15초 · 푸들 11초) — 같으면 나란히 행진합니다. 수치는 `constants.ts` 의 `STROLL`.
+- 하트 게이지는 강아지를 따라다니지 않고 **방 위쪽(벽·창문 자리)** 에 붙였습니다.
+
+**"내가 직접 밥을 주고 싶어"**
+- 사료 🍖 · 물 🚰 을 집어 **그릇에 끌어다 붓습니다** (탭해도 부어집니다 — 끌기는 보조 수단).
+- 그릇은 비어서 시작하고, 부으면 차고, 다 먹으면 다시 빕니다.
+- 전체 화면 "냠냠" 카드를 없앴습니다. 대신 **방 안 강아지가 멈춰 서서** "냠냠 🍖" 말풍선을 띄웁니다.
+- 다 먹은 그릇을 또 누르면 "월월 🙅" 로 답합니다 (보상 없음).
+
+보상 경로(`REWARD feed`/`water`)와 하루 1회 제한은 그대로입니다 — 손놀림만 바뀌었습니다.
 
 ## 직접 확인해야 할 것 (아직 못 한 것)
 

@@ -57,7 +57,7 @@
 |---|---|
 | `LoadingScreen.tsx` | S0 발자국 |
 | `NamingScreen.tsx` | S1 선물 상자 → 이름 짓기 |
-| `HomeScreen.tsx` | S2 홈 — 하트, 밥·물그릇, 할 수 있는 일 버튼 전부 (순서 없음) |
+| `HomeScreen.tsx` | S2 홈 — 방을 돌아다니는 강아지, 하트, 그릇에 부어 주는 밥·물, 할 수 있는 일 버튼 전부 (순서 없음) |
 | `DressScreen.tsx` | S3 옷 입히기 (→ 옷가게 입구) |
 | `ShopScreen.tsx` | S4 옷가게 — 오늘의 새 옷, 코인으로 구매 |
 | `CommuteScreen.tsx` | S5+S6 출근 준비(목줄·입마개 드래그) → 오픈카 이동 → 도착 |

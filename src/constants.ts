@@ -139,6 +139,21 @@ export const TIMING = {
   groomCurtain: 1200,
 };
 
+/* ──────────────────── 홈: 강아지가 돌아다니기 ────────────────────
+ * 방 안을 천천히 오갑니다. **보상은 없습니다** — 살아 있어 보이게 하는 연출뿐입니다.
+ * 두 마리의 왕복 시간을 다르게 둬야 나란히 행진하지 않고 따로 노는 것처럼 보입니다.
+ */
+export const STROLL = {
+  /** 한쪽 끝까지 가는 시간 (ms). 돌아오는 데 같은 시간이 더 걸립니다 */
+  legMs: { dachshund: 15_000, poodle: 11_000 } as Record<DogId, number>,
+  /** 좌우로 오가는 거리 (px). 더 늘리면 두 마리가 가운데에서 오래 겹칩니다 */
+  range: 64,
+  /** 걸을 때 위아래로 들썩이는 높이 (px) */
+  bob: 5,
+  /** 들썩임 한 번 (ms) */
+  bobMs: 900,
+};
+
 /* ───────────────────────── 씻기기 ───────────────────────── */
 
 /** 거품 문지르기 목표 (드래그 이동 횟수) */
@@ -257,6 +272,12 @@ export const ACTION_LABEL: Partial<Record<RewardAction, string>> = {
 
 /** 주말에는 수업 대신 소풍입니다 (`today.lesson.type === 'picnic'`) */
 export const PICNIC_ACTION_LABEL = '🧺 소풍 가기';
+
+/** 밥·물 주기: 그릇에 끌어다 붓는 것들 (탭해도 부어집니다 — 끌기는 보조 수단) */
+export const FEED_ITEMS = [
+  { action: 'feed', emoji: '🍖', label: '사료', eating: '냠냠 🍖', done: '다 먹었어요 ✅' },
+  { action: 'water', emoji: '🚰', label: '물', eating: '꿀꺽 💧', done: '다 마셨어요 ✅' },
+] as const;
 
 /** 옷 입히기를 이미 끝낸 날의 문구 — 다시 들어가 갈아입히고 옷가게에 갈 수 있습니다. */
 export const DRESS_AGAIN_LABEL = '👕 옷 갈아입히기';
